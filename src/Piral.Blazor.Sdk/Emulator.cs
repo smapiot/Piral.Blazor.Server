@@ -43,11 +43,23 @@ public static class Emulator
 
         if (Directory.Exists(path))
         {
-            var exe = Directory.GetFiles(path, "*.exe").FirstOrDefault();
-
-            if (exe is not null)
+            var files = Directory.GetFiles(path);
+            // looking for a .exe file (Windows) or the same file without the extension (Linux or MacOS)
+            var dll = files.FirstOrDefault(path =>
             {
-                return Path.ChangeExtension(exe, ".dll");
+                if (Path.GetExtension(path) == ".dll")
+                {
+                    var linuxApp = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+                    var windowsExe = Path.ChangeExtension(path, ".exe");
+                    return files.Contains(windowsExe) || files.Contains(linuxApp);
+                }
+
+                return false;
+            });
+
+            if (dll is not null)
+            {
+                return dll;
             }
         }
         
