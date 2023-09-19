@@ -1,0 +1,49 @@
+@inject IMfComponentService mfs
+@implements IDisposable
+
+@foreach(var component in components)
+{
+    <DynamicComponent Type="@component" Parameters="@Parameters" />
+}
+
+@code {
+    private IEnumerable<Type> components = Enumerable.Empty<Type>();
+
+    /// <summary>
+    /// The required name of the components to render.
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = "";
+
+    /// <summary>
+    /// The additional parameters to forward to the extensions.
+    /// </summary>
+    [Parameter]
+    public IDictionary<string, object>? Parameters { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        UpdateComponent();
+    }
+
+    protected override void OnInitialized()
+    {
+        mfs.ComponentsChanged += NotifyComponentsChanged;
+    }
+
+    public void Dispose()
+    {
+        mfs.ComponentsChanged -= NotifyComponentsChanged;
+    }
+
+    private void NotifyComponentsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(UpdateComponent);
+    }
+
+    private void UpdateComponent()
+    {
+        components = mfs.GetComponents(Name);
+        StateHasChanged();
+    }
+}
