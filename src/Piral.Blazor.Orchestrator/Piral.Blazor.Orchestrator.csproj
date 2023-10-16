@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.2.0</Version>
+    <VersionPrefix>0.2.0</VersionPrefix>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florian Rappl</Authors>
@@ -13,6 +13,7 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageDescription>The orchestration module for creating server-side micro frontends using Blazor.</PackageDescription>
     <PackageLicense>MIT</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/smapiot/Piral.Blazor.Server</PackageProjectUrl>
   </PropertyGroup>

@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
-      - run: dotnet build -c Release
+      - run: dotnet build -c Release --version-suffix preview.${{ github.run_id }}
         working-directory: src
       - name: Publish packages
         run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
