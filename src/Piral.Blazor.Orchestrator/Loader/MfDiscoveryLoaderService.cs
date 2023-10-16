@@ -25,19 +25,22 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)
     {
-		var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(_feedUrl);
-
-        if (response?.MicroFrontends is not null)
+        if (!string.IsNullOrEmpty(_feedUrl))
         {
-            foreach (var item in response.MicroFrontends)
-            {
-                var data = item.Value.FirstOrDefault();
-                var version = data?.Metadata?.Version;
+            var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(_feedUrl);
 
-                if (version is not null)
+            if (response?.MicroFrontends is not null)
+            {
+                foreach (var item in response.MicroFrontends)
                 {
-                    var mf = await _package.LoadMicrofrontend(item.Key, version);
-                    await _repository.SetPackage(mf);
+                    var data = item.Value.FirstOrDefault();
+                    var version = data?.Metadata?.Version;
+
+                    if (version is not null)
+                    {
+                        var mf = await _package.LoadMicrofrontend(item.Key, version);
+                        await _repository.SetPackage(mf);
+                    }
                 }
             }
         }
@@ -45,7 +48,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
     public async void ConnectMicrofrontends(CancellationToken ct)
     {
-        while (!ct.IsCancellationRequested)
+        while (!ct.IsCancellationRequested && !string.IsNullOrEmpty(_wsUrl))
         {
             using var ws = new ClientWebSocket();
 
@@ -58,6 +61,8 @@ public class MfDiscoveryLoaderService : IMfLoaderService
             {
                 // Ignore such errors for now - just reconnect as long as
                 // the service is running
+                // We wait a second to give the server a chance to recover
+                await Task.Delay(1000).ConfigureAwait(false);
             }
         }
     }
