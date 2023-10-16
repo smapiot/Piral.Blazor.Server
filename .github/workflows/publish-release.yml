@@ -17,5 +17,6 @@ jobs:
         working-directory: src
       - name: Publish packages
         run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        working-directory: src
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
