@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Piral.Blazor.Shared" Version="0.2.0" PrivateAssets="all" />
+    <PackageReference Include="Piral.Blazor.Shared" Version="0.2.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
