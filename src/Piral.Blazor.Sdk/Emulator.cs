@@ -38,7 +38,7 @@ public static class Emulator
     private static string FindPath(Assembly assembly)
     {
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>().Name;
+        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name;
         var path = Path.Combine(userProfile, ".nuget", "packages", name);
 
         if (Directory.Exists(path))
@@ -49,7 +49,7 @@ public static class Emulator
             {
                 if (Path.GetExtension(path) == ".dll")
                 {
-                    var linuxApp = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+                    var linuxApp = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
                     var windowsExe = Path.ChangeExtension(path, ".exe");
                     return files.Contains(windowsExe) || files.Contains(linuxApp);
                 }
