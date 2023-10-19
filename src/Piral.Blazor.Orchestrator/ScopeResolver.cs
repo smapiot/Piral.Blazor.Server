@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Builder;
 using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Extensions.DependencyInjection;
