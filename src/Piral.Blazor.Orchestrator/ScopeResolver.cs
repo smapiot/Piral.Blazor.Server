@@ -43,7 +43,7 @@ internal class ScopeResolver : IScopeResolver
                         var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
                         var instance = provider.GetService(serviceType);
 
-                        if (instance is not null)
+                        if (instance is not null && instance is not IServiceProvider && instance is not ILifetimeScope)
                         {
                             newBuilder
                                 .RegisterInstance(instance)
