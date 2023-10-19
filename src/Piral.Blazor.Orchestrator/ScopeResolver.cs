@@ -3,6 +3,7 @@ using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.CompilerServices;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -14,24 +15,30 @@ public interface IScopeResolver : IDisposable
 internal class ScopeResolver : IScopeResolver
 {
     private readonly IServiceCollection _services;
-    private IServiceProvider? _provider;
+    private readonly ConditionalWeakTable<IServiceProvider, IServiceProvider> _mapping;
 
     public ScopeResolver(IServiceCollection services)
     {
         _services = services;
+        _mapping = new();
     }
 
     public void Dispose()
     {
-        var scope = _provider?.GetService<ILifetimeScope>();
-        scope?.Dispose();
+        foreach (var entry in _mapping)
+        {
+            var scope = entry.Value?.GetService<ILifetimeScope>();
+            scope?.Dispose();
+        }
+
+        _mapping.Clear();
     }
 
-    public IServiceProvider Resolve(IServiceProvider provider)
+    public IServiceProvider Resolve(IServiceProvider parentProvider)
     {
-        if (_provider is null)
+        if (!_mapping.TryGetValue(parentProvider, out var childProvider))
         {
-            var scope = provider.GetService<ILifetimeScope>()!;
+            var scope = parentProvider.GetService<ILifetimeScope>()!;
             var childScope = scope.BeginLifetimeScope(newBuilder =>
             {
                 newBuilder.Populate(_services);
@@ -41,20 +48,22 @@ internal class ScopeResolver : IScopeResolver
                     if (registration.Lifetime == CurrentScopeLifetime.Instance)
                     {
                         var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
-                        var instance = provider.GetService(serviceType);
 
-                        if (instance is not null && instance is not IServiceProvider && instance is not ILifetimeScope)
+                        if (serviceType != typeof(IServiceProvider) && serviceType != typeof(ILifetimeScope))
                         {
-                            newBuilder
-                                .RegisterInstance(instance)
-                                .As(registration.Services.ToArray());
+                            var rb = RegistrationBuilder.ForDelegate(serviceType, (_, _) =>
+                                parentProvider.GetService(serviceType)!);
+
+                            newBuilder.RegisterCallback(cr => 
+                                RegistrationBuilder.RegisterSingleComponent(cr, rb));
                         }
                     }
                 }
             });
-            _provider = new AutofacServiceProvider(childScope);
+            childProvider = new AutofacServiceProvider(childScope);
+            _mapping.TryAdd(parentProvider, childProvider);
         }
 
-        return _provider;
+        return childProvider;
     }
 }
