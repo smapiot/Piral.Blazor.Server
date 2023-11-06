@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@using Piral.Blazor.Shared
+
+@inject IMfComponentService mfs
+@inject IMfDebugConnector dbg
+@implements IDisposable
+
+<HeadContent>
+    <link href="_content/Piral.Blazor.Orchestrator/app.css" rel="stylesheet" />
+@foreach (var style in dbg.Styles)
+{
+    <link href="@style" rel="stylesheet" />
+}
+@foreach (var style in mfs.Styles)
+{
+    <link href="@style" rel="stylesheet" />
+}
+</HeadContent>
+
+@code {
+    protected override void OnInitialized()
+    {
+        mfs.ComponentsChanged += NotifyComponentsChanged;
+    }
+
+    public void Dispose()
+    {
+        mfs.ComponentsChanged -= NotifyComponentsChanged;
+    }
+
+    private void NotifyComponentsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}

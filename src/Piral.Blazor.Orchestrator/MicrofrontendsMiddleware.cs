@@ -8,12 +8,14 @@ internal class MicrofrontendsMiddleware
     private readonly FileExtensionContentTypeProvider _contentTypeProvider;
     private readonly RequestDelegate _next;
     private readonly IMfRepository _repository;
+    private readonly IMfDebugConnector _debug;
 
-    public MicrofrontendsMiddleware(RequestDelegate next, IMfRepository repository)
+    public MicrofrontendsMiddleware(RequestDelegate next, IMfRepository repository, IMfDebugConnector debug)
     {
         _contentTypeProvider = new FileExtensionContentTypeProvider();
         _next = next;
         _repository = repository;
+        _debug = debug;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -44,6 +46,10 @@ internal class MicrofrontendsMiddleware
                     }
                 }
             }
+        }
+        else if (await _debug.InterceptAsync(context))
+        {
+            return;
         }
 
         await _next(context);

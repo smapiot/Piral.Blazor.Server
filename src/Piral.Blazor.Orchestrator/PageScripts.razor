@@ -1,0 +1,32 @@
+﻿@using Piral.Blazor.Shared
+
+@inject Piral.Blazor.Shared.IMfComponentService mfs
+@inject IMfDebugConnector dbg
+@implements IDisposable
+
+<script src="_content/Piral.Blazor.Orchestrator/app.js"></script>
+@foreach (var script in dbg.Scripts)
+{
+    <script src="@script"></script>
+}
+@foreach (var script in mfs.Scripts)
+{
+    <blazor-script src="@script"></blazor-script>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        mfs.ComponentsChanged += NotifyComponentsChanged;
+    }
+
+    public void Dispose()
+    {
+        mfs.ComponentsChanged -= NotifyComponentsChanged;
+    }
+
+    private void NotifyComponentsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}
