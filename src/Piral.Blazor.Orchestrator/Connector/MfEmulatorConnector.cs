@@ -1,3 +1,4 @@
+using System.IO.Pipelines;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -47,15 +48,26 @@ internal class MfEmulatorConnector : IMfDebugConnector
                 return false;
             }
 
-            var state = new MfDebugState();
-            var content = JsonSerializer.Serialize(state);
-            context.Response.StatusCode = 200;
-            context.Response.ContentType = "application/json";
-            await context.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes(content));
+            await SendCurrentState(context).ConfigureAwait(false);
             return true;
         }
 
         return false;
+    }
+
+    private ValueTask<FlushResult> SendCurrentState(HttpContext context)
+    {
+        var state = CollectCurrentState();
+        var content = JsonSerializer.Serialize(state);
+        context.Response.StatusCode = 200;
+        context.Response.ContentType = "application/json";
+        return context.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes(content));
+    }
+
+    private MfDebugState CollectCurrentState()
+    {
+        var state = new MfDebugState();
+        return state;
     }
 
     class MfDebugState
