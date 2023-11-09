@@ -4,7 +4,6 @@
 @inject IMfDebugConnector dbg
 @implements IDisposable
 
-<link rel="preload" href="_framework/blazor.server.js" as="script" />
 <script src="_content/Piral.Blazor.Orchestrator/app.js" defer></script>
 @foreach (var script in dbg.Scripts)
 {
