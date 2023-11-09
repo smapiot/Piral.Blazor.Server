@@ -1,4 +1,5 @@
 using System.IO.Pipelines;
+using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -114,6 +115,10 @@ internal class MfEmulatorConnector : IMfDebugConnector
     private MfDebugState CollectCurrentState()
     {
         var state = new MfDebugState();
+        var assembly = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(m => m.DefinedTypes.Any(n => n.Name == "Program"));
+        var assemblyDetails = assembly?.GetName();
+        state.App.Name = assemblyDetails?.Name ?? "Piral.Blazor.Server";
+        state.App.Version = assemblyDetails?.Version?.ToString() ?? "0.0.0";
 
         foreach (var package in _repository.Packages)
         {
@@ -181,6 +186,9 @@ internal class MfEmulatorConnector : IMfDebugConnector
 
     class MfDebugState
     {
+        [JsonPropertyName("app")]
+        public MfAppInfo App { get; } = new();
+
         [JsonPropertyName("extensions")]
         public List<string> Extensions { get; } = new();
 
@@ -192,6 +200,15 @@ internal class MfEmulatorConnector : IMfDebugConnector
 
         [JsonPropertyName("routes")]
         public List<string> Routes { get; } = new();
+    }
+
+    class MfAppInfo
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "Piral.Blazor.Server";
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; } = "0.0.0";
     }
 
     class MfPiletInfo
