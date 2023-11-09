@@ -14,17 +14,20 @@ public class MfRepository : IMfRepository, IDisposable
 
 	public IEnumerable<MicrofrontendPackage> Packages => _microfrontends;
 
+    public MicrofrontendPackage? GetPackage(string name) => _microfrontends.FirstOrDefault(m => m.Name == name);
+
     public async Task DeletePackage(string name)
     {
-        var items = _microfrontends.Where(m => m.Name == name).ToList();
+        var packages = _microfrontends.Where(m => m.Name == name).ToList();
 
-        if (items.Any())
+        if (packages.Any())
         {
-            foreach (var item in items)
+            foreach (var package in packages)
             {
-                _microfrontends.Remove(item);
-                await item.Destroy();
-                item.Dispose();
+                package.PackageChanged -= NotifyPackagesChanged;
+                _microfrontends.Remove(package);
+                await package.Destroy();
+                package.Dispose();
             }
 
             await Update();
@@ -41,13 +44,18 @@ public class MfRepository : IMfRepository, IDisposable
             await package.Init();
             _microfrontends.RemoveAll(m => m.Name == name);
             _microfrontends.Add(package);
+            package.PackageChanged += NotifyPackagesChanged;
             await Update();
         }
     }
 
     public void Dispose()
     {
-        _microfrontends.ForEach(m => m.Dispose());
+        _microfrontends.ForEach(package =>
+        {
+            package.PackageChanged -= NotifyPackagesChanged;
+            package.Dispose();
+        });
         _microfrontends.Clear();
     }
 
@@ -60,7 +68,8 @@ public class MfRepository : IMfRepository, IDisposable
         }).Select(m => m.MakePackageId());
 
         await _snapshot.UpdateMicrofrontends(ids);
-
-        PackagesChanged?.Invoke(this, EventArgs.Empty);
+        NotifyPackagesChanged(this, EventArgs.Empty);
     }
+
+    private void NotifyPackagesChanged(object? sender, EventArgs e) => PackagesChanged?.Invoke(sender, e);
 }

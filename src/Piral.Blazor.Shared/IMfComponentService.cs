@@ -10,5 +10,5 @@ public interface IMfComponentService
 
     IEnumerable<string> ComponentNames { get; }
 
-    IEnumerable<Type> GetComponents(string name);
+    IEnumerable<(string, Type)> GetComponents(string name);
 }

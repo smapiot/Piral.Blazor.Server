@@ -6,7 +6,9 @@ public interface IMfRepository
 
     IEnumerable<MicrofrontendPackage> Packages { get; }
 
-	Task SetPackage(MicrofrontendPackage package);
+    MicrofrontendPackage? GetPackage(string name);
 
-	Task DeletePackage(string name);
+    Task SetPackage(MicrofrontendPackage package);
+
+    Task DeletePackage(string name);
 }

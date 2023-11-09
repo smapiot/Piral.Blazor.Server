@@ -16,13 +16,16 @@ internal class MfComponentService : IMfComponentService
 
     private void OnPackagesChanged(object? sender, EventArgs e) => ComponentsChanged?.Invoke(this, e);
 
-    public IEnumerable<string> Scripts => _repository.Packages.SelectMany(m => m.Scripts.Select(s => GetLink(m.Name, s)));
+    private IEnumerable<MicrofrontendPackage> ActivePackages => _repository.Packages.Where(m => !m.IsDisabled);
 
-    public IEnumerable<string> Styles => _repository.Packages.SelectMany(m => m.Styles.Select(s => GetLink(m.Name, s)));
+    public IEnumerable<string> Scripts => ActivePackages.SelectMany(m => m.Scripts.Select(s => GetLink(m.Name, s)));
 
-    public IEnumerable<string> ComponentNames => _repository.Packages.SelectMany(m => m.ComponentNames).Distinct();
+    public IEnumerable<string> Styles => ActivePackages.SelectMany(m => m.Styles.Select(s => GetLink(m.Name, s)));
 
-    public IEnumerable<Type> GetComponents(string name) => _repository.Packages.SelectMany(m => m.GetComponents(name));
+    public IEnumerable<string> ComponentNames => ActivePackages.SelectMany(m => m.ComponentNames).Distinct();
+
+    public IEnumerable<(string, Type)> GetComponents(string name) =>
+        ActivePackages.SelectMany(m => m.GetComponents(name).Select(component => (m.Name, component)));
 
     private static string GetLink(string name, string path)
     {

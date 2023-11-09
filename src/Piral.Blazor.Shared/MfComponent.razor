@@ -1,13 +1,15 @@
 @inject IMfComponentService mfs
 @implements IDisposable
 
-@foreach(var component in components)
+@foreach (var (pilet, component) in components)
 {
-    <DynamicComponent Type="@component" Parameters="@Parameters" />
+    <piral-component name="@Name" origin="@pilet">
+        <DynamicComponent Type="@component" Parameters="@Parameters" />
+    </piral-component>
 }
 
 @code {
-    private IEnumerable<Type> components = Enumerable.Empty<Type>();
+    private IEnumerable<(string, Type)> components = Enumerable.Empty<(string, Type)>();
 
     /// <summary>
     /// The required name of the components to render.

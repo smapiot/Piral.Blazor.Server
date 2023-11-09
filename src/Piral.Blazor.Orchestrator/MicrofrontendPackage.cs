@@ -7,19 +7,38 @@ namespace Piral.Blazor.Orchestrator;
 public abstract class MicrofrontendPackage : IDisposable
 {
     private readonly RelatedMfAppService _app;
-	private readonly IModuleContainerService _container;
+    private readonly IModuleContainerService _container;
+    public event EventHandler? PackageChanged;
 
-	private IMfModule? _module;
+    private IMfModule? _module;
+    private bool _disabled;
 
     public MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events)
-	{
+    {
         _app = new RelatedMfAppService(name, version, events);
-		_container = container;
+        _container = container;
+        _disabled = false;
     }
 
-	public string Name => _app.Name;
+    public string Name => _app.Name;
 
-	public string Version => _app.Version;
+    public string Version => _app.Version;
+
+    public bool IsDisabled
+    {
+        get
+        {
+            return _disabled;
+        }
+        set
+        {
+            if (value != _disabled) 
+            {
+                _disabled = value;
+                PackageChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
 
     public IEnumerable<string> Scripts => _app.Scripts;
 
@@ -27,26 +46,32 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public IEnumerable<string> ComponentNames => _app.Components.Keys;
 
+    public IEnumerable<string> Dependencies => 
+        GetAssembly()?.
+        GetReferencedAssemblies().
+        Select(m => m.Name ?? "").
+        Where(m => !string.IsNullOrEmpty(m)) ?? Enumerable.Empty<string>();
+
     public IEnumerable<Type> GetComponents(string name)
-	{
-		if (_app.Components.TryGetValue(name, out var result))
-		{
-			return result;
-		}
+    {
+        if (_app.Components.TryGetValue(name, out var result))
+        {
+            return result;
+        }
 
-		return Enumerable.Empty<Type>();
-	}
+        return Enumerable.Empty<Type>();
+    }
 
-	public async Task Init()
-	{
-		var assembly = GetAssembly();
+    public async Task Init()
+    {
+        var assembly = GetAssembly();
 
         if (assembly is not null)
         {
             _module = await _container.ConfigureModule(assembly, _app);
         }
 
-		_app.PrependStyleSheet(GetCssName());
+        _app.PrependStyleSheet(GetCssName());
         await OnInitialized();
     }
 
@@ -54,22 +79,22 @@ public abstract class MicrofrontendPackage : IDisposable
 
     protected abstract string GetCssName();
 
-	protected abstract Assembly? GetAssembly();
+    protected abstract Assembly? GetAssembly();
 
-	public async Task Destroy()
-	{
-		if (_module is not null)
+    public async Task Destroy()
+    {
+        if (_module is not null)
         {
             await _module.Teardown(_app);
         }
 
-		_app.Reset();
-	}
+        _app.Reset();
+    }
 
-	public virtual void Dispose()
-	{
-		// Empty on purpose
-	}
+    public virtual void Dispose()
+    {
+        // Empty on purpose
+    }
 
     public abstract Stream? GetFile(string path);
 
@@ -88,15 +113,15 @@ public abstract class MicrofrontendPackage : IDisposable
         public string Version { get; }
 
         public RelatedMfAppService(string name, string version, IEvents events)
-		{
-			Name = name;
-			Version = version;
-			_events = events;
-		}
+        {
+            Name = name;
+            Version = version;
+            _events = events;
+        }
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {
-			_events.AddEventListener(type, handler);
+            _events.AddEventListener(type, handler);
         }
 
         public void AppendScript(string path)
@@ -111,7 +136,7 @@ public abstract class MicrofrontendPackage : IDisposable
 
         public void PrependStyleSheet(string path)
         {
-			Styles.Add(path);
+            Styles.Add(path);
         }
 
         public void RemoveEventListener<T>(string type, Action<T> handler)
@@ -119,15 +144,15 @@ public abstract class MicrofrontendPackage : IDisposable
             _events.RemoveEventListener(type, handler);
         }
 
-		public void Reset()
-		{
-			Components.Clear();
-			Styles.Clear();
+        public void Reset()
+        {
+            Components.Clear();
+            Styles.Clear();
             Scripts.Clear();
         }
 
         public void MapComponent<T>(string name)
-			where T : class, IComponent
+            where T : class, IComponent
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -135,8 +160,8 @@ public abstract class MicrofrontendPackage : IDisposable
             }
 
             var components = Components.GetValueOrDefault(name) ?? new List<Type>();
-			components.Add(typeof(T));
-			Components[name] = components;
+            components.Add(typeof(T));
+            Components[name] = components;
         }
 
         public void MapRoute<T>()
@@ -151,10 +176,7 @@ public abstract class MicrofrontendPackage : IDisposable
 
             foreach (var attribute in attributes)
             {
-                var name = $"route:{attribute.Template}";
-                var components = Components.GetValueOrDefault(name) ?? new List<Type>();
-                components.Add(typeof(T));
-                Components[name] = components;
+                MapComponent<T>($"route:{attribute.Template}");
             }
         }
     }

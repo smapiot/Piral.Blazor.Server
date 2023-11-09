@@ -1,5 +1,7 @@
 (async function () {
   const target = "/_debug";
+  const visualizerName = "piral-inspector-visualizer";
+  const piletColorMap = {};
   const colors = [
     "#001F3F",
     "#0074D9",
@@ -15,6 +17,54 @@
     "#F012BE",
     "#B10DC9",
   ];
+
+  class PiralInspectorVisualizer extends HTMLElement {
+    update = () => {
+      this.innerText = "";
+      document.querySelectorAll("piral-component").forEach((element) => {
+        const targetRect = element.firstElementChild.getBoundingClientRect();
+        const pilet = element.getAttribute("origin");
+        const vis = this.appendChild(document.createElement("div"));
+        const info = vis.appendChild(document.createElement("div"));
+        vis.style.position = "absolute";
+        vis.style.left = targetRect.left + "px";
+        vis.style.top = targetRect.top + "px";
+        vis.style.width = targetRect.width + "px";
+        vis.style.height = targetRect.height + "px";
+        vis.style.pointerEvents = "none";
+        vis.style.zIndex = "99999999999";
+        vis.style.border = "1px solid #ccc";
+        info.style.color = "white";
+        info.textContent = pilet;
+        info.style.position = "absolute";
+        info.style.right = "0";
+        info.style.top = "0";
+        info.style.fontSize = "8px";
+        info.style.background =
+          piletColorMap[pilet] ||
+          (piletColorMap[pilet] =
+            colors[Object.keys(piletColorMap).length % colors.length]);
+      });
+    };
+
+    connectedCallback() {
+      this.style.position = "absolute";
+      this.style.top = "0";
+      this.style.left = "0";
+      this.style.width = "0";
+      this.style.height = "0";
+
+      window.addEventListener("add-component", this.update);
+      window.addEventListener("remove-component", this.update);
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener("add-component", this.update);
+      window.removeEventListener("remove-component", this.update);
+    }
+  }
+
+  customElements.define(visualizerName, PiralInspectorVisualizer);
 
   function installPiralDebug(options) {
     const {
@@ -150,48 +200,16 @@
     };
 
     const toggleVisualize = () => {
-      let visualizer = document.querySelector("#piral-inspector-visualizer");
+      const visualizer = document.querySelector(visualizerName);
 
       if (visualizer) {
         visualizer.remove();
       } else {
-        const moduleColor = {};
-        visualizer = document.body.appendChild(document.createElement("div"));
-        visualizer.id = "piral-inspector-visualizer";
-        visualizer.style.position = "absolute";
-        visualizer.style.top = "0";
-        visualizer.style.left = "0";
-        visualizer.style.width = "0";
-        visualizer.style.height = "0";
-
-        document.querySelectorAll("piral-component").forEach((element) => {
-          const targetRect = element.firstElementChild.getBoundingClientRect();
-          const pilet = element.getAttribute("origin");
-          const vis = visualizer.appendChild(document.createElement("div"));
-          const info = vis.appendChild(document.createElement("div"));
-          vis.style.position = "absolute";
-          vis.style.left = targetRect.left + "px";
-          vis.style.top = targetRect.top + "px";
-          vis.style.width = targetRect.width + "px";
-          vis.style.height = targetRect.height + "px";
-          vis.style.pointerEvents = "none";
-          vis.style.zIndex = "99999999999";
-          vis.style.border = "1px solid #ccc";
-          info.style.color = "white";
-          info.textContent = pilet;
-          info.style.position = "absolute";
-          info.style.right = "0";
-          info.style.top = "0";
-          info.style.fontSize = "8px";
-          info.style.background =
-            moduleColor[pilet] ||
-            (moduleColor[pilet] =
-              colors[Object.keys(moduleColor).length % colors.length]);
-        });
+        visualizer = document.body.appendChild(
+          document.createElement(visualizerName)
+        );
       }
     };
-
-    const depMap = {};
 
     const debugApi = {
       debug: debugApiVersion,
@@ -255,43 +273,16 @@
     };
 
     const getDependencyMap = () => {
-      const dependencyMap = {};
-      const addDeps = (pilet, dependencies) => {
-        const deps = dependencyMap[pilet] || [];
-
-        for (const depName of Object.keys(dependencies)) {
-          if (!deps.some((m) => m.demanded === depName)) {
-            deps.push({
-              demanded: depName,
-              resolved: dependencies[depName],
-            });
-          }
-        }
-
-        dependencyMap[pilet] = deps;
-      };
-      const pilets = getPilets()
-        .map((pilet) => ({
-          name: pilet.name,
-          link: pilet.link,
-          basePath: pilet.basePath,
-        }))
-        .filter((m) => m.link);
-
-      Object.keys(depMap).forEach((url) => {
-        const dependencies = depMap[url];
-        const pilet = pilets.find((p) => p.link === url);
-
-        if (pilet) {
-          addDeps(pilet.name, dependencies);
-        } else if (!pilet) {
-          const parent = pilets.find((p) => url.startsWith(p.basePath));
-
-          if (parent) {
-            addDeps(parent.name, dependencies);
-          }
-        }
-      });
+      const pilets = getPilets();
+      const dependencyMap = Object.fromEntries(
+        pilets.map((pilet) => [
+          pilet.name,
+          pilet.dependencies.map((depName) => ({
+            demanded: depName,
+            resolved: depName,
+          })),
+        ])
+      );
 
       sendMessage({
         type: "dependency-map",
@@ -365,10 +356,10 @@
       });
     },
     getDependencies() {
-      return Object.keys(state.dependencies);
+      return state.dependencies;
     },
     getExtensions() {
-      return Object.keys(state.extensions);
+      return state.extensions;
     },
     getGlobalState() {
       return state;

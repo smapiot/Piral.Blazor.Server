@@ -2,3 +2,7 @@ blazor-script {
   display: none;
   visibility: collapse;
 }
+
+piral-component {
+  display: contents;
+}

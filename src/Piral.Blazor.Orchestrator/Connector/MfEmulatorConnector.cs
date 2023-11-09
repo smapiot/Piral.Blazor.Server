@@ -10,10 +10,18 @@ internal class MfEmulatorConnector : IMfDebugConnector
 {
     private readonly IEnumerable<string> _styles = Enumerable.Empty<string>();
     private readonly IEnumerable<string> _scripts = new[] { "_content/Piral.Blazor.Orchestrator/debug.js" };
+    private readonly IMfRepository _repository;
+    private readonly IEvents _events;
 
     public IEnumerable<string> Styles => _styles;
 
     public IEnumerable<string> Scripts => _scripts;
+
+    public MfEmulatorConnector(IMfRepository repository, IEvents events)
+    {
+        _repository = repository;
+        _events = events;
+    }
 
     public async Task<bool> InterceptAsync(HttpContext context)
     {
@@ -38,7 +46,46 @@ internal class MfEmulatorConnector : IMfDebugConnector
                 switch (area)
                 {
                     case "event":
+                    {
+                        var payload = await context.Request.ReadFromJsonAsync<EventRequest>();
+
+                        if (payload is not null && payload.Name is not null)
+                        {
+                            _events.DispatchEvent(payload.Name, payload.Args);
+                        }
+
+                        break;
+                    }
                     case "pilet":
+                    {
+                        var payload = await context.Request.ReadFromJsonAsync<PiletRequest>();
+
+                        if (payload is not null && payload.Name is not null)
+                        {
+                            switch (payload.Mode)
+                            {
+                                case "add":
+                                    //TODO
+                                    break;
+                                case "update":
+                                    var package = _repository.GetPackage(payload.Name);
+
+                                    if (package is not null)
+                                    {
+                                        package.IsDisabled = payload.IsDisabled;
+                                    }
+
+                                    break;
+                                case "remove":
+                                    await _repository.DeletePackage(payload.Name);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -67,33 +114,98 @@ internal class MfEmulatorConnector : IMfDebugConnector
     private MfDebugState CollectCurrentState()
     {
         var state = new MfDebugState();
+
+        foreach (var package in _repository.Packages)
+        {
+            var dependencies = new List<string>();
+
+            foreach (var component in package.ComponentNames)
+            {
+                var routePrefix = "route:";
+
+                if (component.StartsWith(routePrefix))
+                {
+                    state.Routes.Add(component[routePrefix.Length..]);
+                }
+                else
+                {
+                    state.Extensions.Add(component);
+                }
+            }
+
+            foreach (var dependency in package.Dependencies)
+            {
+                dependencies.Add(dependency);
+
+                if (!state.Dependencies.Contains(dependency))
+                {
+                    state.Dependencies.Add(dependency);
+                }
+            }
+
+            state.Pilets.Add(new MfPiletInfo
+            {
+                Name = package.Name,
+                Version = package.Version,
+                IsDisabled = package.IsDisabled,
+                Dependencies = dependencies,
+            });
+        }
+
         return state;
+    }
+
+    class EventRequest
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+        
+        [JsonPropertyName("args")]
+        public JsonElement Args { get; set; }
+    }
+
+    class PiletRequest
+    {
+        [JsonPropertyName("mode")]
+        public string? Mode { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("version")]
+        public string? Version { get; set; }
+        
+        [JsonPropertyName("disabled")]
+        public bool IsDisabled { get; set; }
     }
 
     class MfDebugState
     {
         [JsonPropertyName("extensions")]
-        public Dictionary<string, string> Extensions => new();
+        public List<string> Extensions { get; } = new();
 
         [JsonPropertyName("dependencies")]
-        public Dictionary<string, string> Dependencies => new();
+        public List<string> Dependencies { get; } = new();
 
         [JsonPropertyName("pilets")]
-        public List<MfPiletInfo> Pilets => new();
+        public List<MfPiletInfo> Pilets { get; } = new();
 
         [JsonPropertyName("routes")]
-        public List<string> Routes => new();
+        public List<string> Routes { get; } = new();
     }
 
     class MfPiletInfo
     {
         [JsonPropertyName("name")]
-        public string Name => "Example";
+        public string Name { get; set; } = "";
 
         [JsonPropertyName("version")]
-        public string Version => "1.0.0";
+        public string Version { get; set; } = "1.0.0";
 
         [JsonPropertyName("disabled")]
-        public bool IsDisabled => false;
+        public bool IsDisabled { get; set; } = false;
+
+        [JsonPropertyName("dependencies")]
+        public List<string>? Dependencies { get; set; }
     }
 }
