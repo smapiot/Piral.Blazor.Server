@@ -103,20 +103,20 @@ internal class NugetService : INugetService
     {
         if (!dependencies.Contains(package))
         {
-            foreach (var repository in _repositories)
+            await Parallel.ForEachAsync(_repositories, async (repository, cancellationToken) =>
             {
                 var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
-                var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, _currentFramework, _cache, _logger, CancellationToken.None);
+                var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, _currentFramework, _cache, _logger, cancellationToken);
 
                 if (dependencyInfo is not null && dependencies.Add(dependencyInfo))
                 {
-                    foreach (var dependency in dependencyInfo.Dependencies)
+                    await Parallel.ForEachAsync(dependencyInfo.Dependencies, async (dependency, _) =>
                     {
                         var packageInfo = new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion);
                         await ListAllPackageDependencies(packageInfo, dependencies);
-                    }
+                    });
                 }
-            }
+            });
         }
     }
 
