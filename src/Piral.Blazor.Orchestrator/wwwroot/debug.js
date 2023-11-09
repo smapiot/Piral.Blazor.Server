@@ -354,7 +354,7 @@ typeof Blazor === 'undefined' && (async function () {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
-        "content-type": "application-json",
+        "content-type": "application/json",
       },
     })
       .then((res) => res.json())
@@ -367,7 +367,7 @@ typeof Blazor === 'undefined' && (async function () {
     return fetch(target, {
       method: "GET",
       headers: {
-        "content-type": "application-json",
+        "content-type": "application/json",
       },
     }).then((res) => res.json());
   }
