@@ -20,7 +20,6 @@ internal class GlobalEvents : IEvents
                 {
                     try
                     {
-                        //TODO determine object to deserialize to
                         var parameter = handler.Method.GetParameters().FirstOrDefault() ??
                             throw new InvalidOperationException("The delegate needs to have exactly one parameter.");
                         var argsType = parameter.ParameterType!;
