@@ -1,4 +1,4 @@
-(async function () {
+typeof Blazor === 'undefined' && (async function () {
   const target = "/_debug";
   const visualizerName = "piral-inspector-visualizer";
   const piletColorMap = {};
@@ -18,14 +18,38 @@
     "#B10DC9",
   ];
 
+  function getTarget(element) {
+    const row = element.childNodes;
+    return [...row]
+      .map((item) => {
+        if (item instanceof Element) {
+          return item.getBoundingClientRect();
+        } else if (item instanceof Text) {
+          const range = document.createRange();
+          range.selectNode(item);
+          return range.getBoundingClientRect();
+        } else {
+          return new DOMRectReadOnly(0, 0, 0, 0);
+        }
+      })
+      .filter((m) => m.height !== 0 && m.width !== 0)
+      .reduce((a, b) => {
+        const x = Math.min(a.left, b.left);
+        const y = Math.min(a.top, b.top);
+        const width = Math.max(a.right, b.right) - x;
+        const height = Math.max(a.bottom, b.bottom) - y;
+        return new DOMRectReadOnly(x, y, width, height);
+      });
+  }
+
   class PiralInspectorVisualizer extends HTMLElement {
     update = () => {
       this.innerText = "";
       document.querySelectorAll("piral-component").forEach((element) => {
-        const targetRect = element.firstElementChild.getBoundingClientRect();
         const pilet = element.getAttribute("origin");
         const vis = this.appendChild(document.createElement("div"));
         const info = vis.appendChild(document.createElement("div"));
+        const targetRect = getTarget(element);
         vis.style.position = "absolute";
         vis.style.left = targetRect.left + "px";
         vis.style.top = targetRect.top + "px";
@@ -56,6 +80,8 @@
 
       window.addEventListener("add-component", this.update);
       window.addEventListener("remove-component", this.update);
+
+      this.update();
     }
 
     disconnectedCallback() {
