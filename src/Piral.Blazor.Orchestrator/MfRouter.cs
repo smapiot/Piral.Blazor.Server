@@ -7,7 +7,6 @@ namespace Piral.Blazor.Orchestrator;
 
 public class MfRouter : Router
 {
-    private const string ROUTE_PREFIX = "route:";
     private IMfComponentService? _componentService;
 
     [Inject]
@@ -17,7 +16,7 @@ public class MfRouter : Router
         set
         {
             _componentService = value;
-            AdditionalAssemblies = GetAssemblies().Distinct();
+            AdditionalAssemblies = GetAssemblies();
         }
     }
 
@@ -25,18 +24,9 @@ public class MfRouter : Router
     {
         if (_componentService is not null)
         {
-            foreach (var name in _componentService.ComponentNames)
-            {
-                if (name.StartsWith(ROUTE_PREFIX))
-                {
-                    var components = _componentService.GetComponents(name);
-
-                    foreach (var (_, component) in components)
-                    {
-                        yield return component.Assembly;
-                    }
-                }
-            }
+            return _componentService.GetAllRouteComponents().Select(m => m.Item2.Assembly).Distinct();
         }
+
+        return Enumerable.Empty<Assembly>();
     }
 }

@@ -124,17 +124,17 @@ internal class MfEmulatorConnector : IMfDebugConnector
         {
             var dependencies = new List<string>();
 
-            foreach (var component in package.ComponentNames)
+            foreach (var componentName in package.ComponentNames)
             {
                 var routePrefix = "route:";
 
-                if (component.StartsWith(routePrefix))
+                if (componentName.StartsWith(routePrefix))
                 {
-                    state.Routes.Add(component[routePrefix.Length..]);
+                    state.Routes.Add(componentName[routePrefix.Length..]);
                 }
                 else
                 {
-                    state.Extensions.Add(component);
+                    state.Extensions.Add(componentName);
                 }
             }
 
