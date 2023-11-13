@@ -83,6 +83,25 @@ With these in place you can modify your layout to integrate the necessary parts.
 <PageScripts />
 ```
 
+If you want to enable routing for your micro frontends (such that they can use the `MapRoute` feature) you should also exchange the `Router` in your `App.razor` with the `MfRouter` like so:
+
+```razor
+<MfRouter AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</MfRouter>
+```
+
+The rest you can keep (or change) as you like.
+
 Finally, remove the reference to any `blazor.server.js` script, i.e., transform your `_host.cshtml` to have no `<script>` tag such as:
 
 ```html
