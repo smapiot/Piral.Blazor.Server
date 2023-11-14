@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -8,59 +7,52 @@ namespace Piral.Blazor.Orchestrator;
 
 public class MfRouteView : RouteView
 {
-    private readonly ConcurrentDictionary<Type, Type?>? _cache;
+    private readonly RenderFragment _renderContent;
 
     [Inject]
     public IMfComponentService? ComponentService { get; set; }
 
     public MfRouteView()
     {
-        _cache = GetType()
-            .GetField("_layout", BindingFlags.Static | BindingFlags.NonPublic)!
-            .GetValue(null) as ConcurrentDictionary<Type, Type?>;
+        _renderContent = RenderPageWithParameters;
     }
 
     protected override void Render(RenderTreeBuilder builder)
     {
-        var pageType = RouteData.PageType;
-        var origin = ComponentService?.GetComponentOrigin(pageType);
+        var pageLayoutType = RouteData.PageType.GetCustomAttribute<LayoutAttribute>()?.LayoutType
+            ?? DefaultLayout;
 
-        if (origin is not null)
-        {
-            _cache?.GetOrAdd(pageType, GetWrapper);
-        }
-
-        base.Render(builder);
-    }
-
-    private Type GetWrapper(Type pageType)
-    {
-        var layoutType = pageType.GetCustomAttribute<LayoutAttribute>()?.LayoutType ?? DefaultLayout;
-        return Type.MakeGenericSignatureType(typeof(LayoutWrapper<,>), layoutType, pageType);
-    }
-}
-
-class LayoutWrapper<TLayout, TComponent> : LayoutComponentBase
-    where TLayout : LayoutComponentBase, new()
-{
-    [Inject]
-    public IMfComponentService? ComponentService { get; set; }
-
-    protected override void BuildRenderTree(RenderTreeBuilder builder)
-    {
         builder.OpenComponent<LayoutView>(0);
-        builder.AddAttribute(1, nameof(LayoutView.Layout), typeof(TLayout));
-        builder.AddAttribute(2, nameof(LayoutView.ChildContent), (RenderFragment)RenderContent);
+        builder.AddAttribute(1, nameof(LayoutView.Layout), pageLayoutType);
+        builder.AddAttribute(2, nameof(LayoutView.ChildContent), _renderContent);
         builder.CloseComponent();
     }
 
-    private void RenderContent(RenderTreeBuilder builder)
+    private void RenderPageWithParameters(RenderTreeBuilder builder)
     {
-        var (Route, Microfrontend, _) = ComponentService!.GetAllRouteComponents().First(m => m.Component == typeof(TComponent));
-        builder.OpenElement(0, "piral-component");
-        builder.AddAttribute(1, "name", $"route:{Route}");
-        builder.AddAttribute(2, "origin", Microfrontend);
-        builder.AddContent(3, Body);
-        builder.CloseElement();
+        var pageType = RouteData.PageType;
+        var (route, origin, _) = ComponentService!.GetAllRouteComponents().FirstOrDefault(m => m.Component == pageType);
+        var isContained = route is not null && origin is not null;
+
+        if (isContained)
+        {
+            builder.OpenElement(0, "piral-component");
+            builder.AddAttribute(1, "name", $"route:{route}");
+            builder.AddAttribute(2, "origin", origin);
+        }
+
+        builder.OpenComponent(3, RouteData.PageType);
+
+        foreach (var kvp in RouteData.RouteValues)
+        {
+            builder.AddAttribute(1, kvp.Key, kvp.Value);
+        }
+
+        builder.CloseComponent();
+
+        if (isContained)
+        {
+            builder.CloseElement();
+        }
     }
 }

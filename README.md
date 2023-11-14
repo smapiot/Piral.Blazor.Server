@@ -88,7 +88,7 @@ If you want to enable routing for your micro frontends (such that they can use t
 ```razor
 <MfRouter AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <MfRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
@@ -101,6 +101,8 @@ If you want to enable routing for your micro frontends (such that they can use t
 ```
 
 The rest you can keep (or change) as you like.
+
+**Note**: Using the `MfRouteView` in the code above is *optional*. We do recommend it, however, if you just keep on using `RouteView` then it would work, too.
 
 Finally, remove the reference to any `blazor.server.js` script, i.e., transform your `_host.cshtml` to have no `<script>` tag such as:
 
