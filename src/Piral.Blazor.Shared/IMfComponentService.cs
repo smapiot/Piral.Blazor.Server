@@ -10,5 +10,7 @@ public interface IMfComponentService
 
     IEnumerable<string> ComponentNames { get; }
 
-    IEnumerable<(string, Type)> GetComponents(string name);
+    IEnumerable<(string Name, string Microfrontend, Type Component)> Components { get; }
+
+    IEnumerable<(string Microfrontend, Type Component)> GetComponents(string name);
 }

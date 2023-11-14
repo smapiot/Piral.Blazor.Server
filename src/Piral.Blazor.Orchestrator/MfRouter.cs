@@ -24,7 +24,7 @@ public class MfRouter : Router
     {
         if (_componentService is not null)
         {
-            return _componentService.GetAllRouteComponents().Select(m => m.Item2.Assembly).Distinct();
+            return _componentService.GetAllRouteComponents().Select(m => m.Component.Assembly).Distinct();
         }
 
         return Enumerable.Empty<Assembly>();

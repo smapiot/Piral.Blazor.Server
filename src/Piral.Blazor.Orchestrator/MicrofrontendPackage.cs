@@ -32,7 +32,7 @@ public abstract class MicrofrontendPackage : IDisposable
         }
         set
         {
-            if (value != _disabled) 
+            if (value != _disabled)
             {
                 _disabled = value;
                 PackageChanged?.Invoke(this, EventArgs.Empty);
@@ -46,7 +46,9 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public IEnumerable<string> ComponentNames => _app.Components.Keys;
 
-    public IEnumerable<string> Dependencies => 
+    public IEnumerable<(string Name, Type Type)> Components => _app.Components.SelectMany(m => m.Value.Select(type => (m.Key, type)));
+
+    public IEnumerable<string> Dependencies =>
         GetAssembly()?.
         GetReferencedAssemblies().
         Select(m => m.Name ?? "").

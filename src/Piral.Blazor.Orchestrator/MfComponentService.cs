@@ -24,6 +24,9 @@ internal class MfComponentService : IMfComponentService
 
     public IEnumerable<string> ComponentNames => ActivePackages.SelectMany(m => m.ComponentNames).Distinct();
 
+    public IEnumerable<(string, string, Type)> Components => 
+        ActivePackages.SelectMany(mf => mf.Components.Select((component) => (mf.Name, component.Name, component.Type)));
+
     public IEnumerable<(string, Type)> GetComponents(string name) =>
         ActivePackages.SelectMany(m => m.GetComponents(name).Select(component => (m.Name, component)));
 
