@@ -12,6 +12,10 @@
       }
     }
 
+    function defer(cb) {
+      setTimeout(cb, 0);
+    }
+
     class BlazorScript extends HTMLElement {
       constructor() {
         super();
@@ -48,31 +52,30 @@
       }
 
       connectedCallback() {
-        window.dispatchEvent(
-          new CustomEvent("add-component", {
-            detail: { name: this.name, origin: this.origin },
-          })
-        );
+        this.deferEvent("add-component");
       }
 
       disconnectedCallback() {
-        window.dispatchEvent(
-          new CustomEvent("remove-component", {
-            detail: { name: this.name, origin: this.origin },
-          })
-        );
+        this.deferEvent("remove-component");
+      }
+
+      deferEvent(eventName) {
+        const ev = new CustomEvent(eventName, {
+          detail: { name: this.name, origin: this.origin },
+        });
+        defer(() => window.dispatchEvent(ev));
       }
     }
 
     customElements.define("blazor-script", BlazorScript);
     customElements.define("piral-component", PiralComponent);
 
-    setTimeout(() => {
+    defer(() => {
       const s = document.createElement("script");
       s.setAttribute("autostart", "false");
       s.setAttribute("src", blazorServer);
       s.async = true;
       s.onload = () => tryInit(blazorServer);
       document.head.appendChild(s);
-    }, 0);
+    });
   })();

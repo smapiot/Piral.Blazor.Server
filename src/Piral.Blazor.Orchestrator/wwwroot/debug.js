@@ -90,6 +90,7 @@ typeof Blazor === "undefined" &&
         this.style.width = "0";
         this.style.height = "0";
 
+        window.addEventListener("resize", this.update);
         window.addEventListener("add-component", this.update);
         window.addEventListener("remove-component", this.update);
 
@@ -97,6 +98,7 @@ typeof Blazor === "undefined" &&
       }
 
       disconnectedCallback() {
+        window.removeEventListener("resize", this.update);
         window.removeEventListener("add-component", this.update);
         window.removeEventListener("remove-component", this.update);
       }

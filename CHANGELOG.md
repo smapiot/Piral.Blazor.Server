@@ -3,8 +3,11 @@
 ## 0.3.0 (tbd)
 
 - Fixed issue with DI using scoped services during debugging in emulator mode
-- Added `PageStyles` and `PageScripts` component to decorate layout
-- Added `MfRouter` component to enable routing (opt-in)
+- Updated the API of the `IMfComponentService` interface to support more use cases
+- Added middleware running in development providing enhanced debugging capabilities
+- Added useful extensions for the `IMfComponentService` service
+- Added `PageStyles` and `PageScripts` components to decorate layout
+- Added `MfRouter` and `MfRouteView` components to enable routing (opt-in)
 - Added integration to Piral Inspector protocol for enhanced development
 
 ## 0.2.1 (October 19, 2023)
