@@ -1,8 +1,7 @@
 # Piral.Blazor.Server Changelog
 
-## 0.3.0 (tbd)
+## 0.3.0 (November 15, 2023)
 
-- Fixed issue with DI using scoped services during debugging in emulator mode
 - Updated the API of the `IMfComponentService` interface to support more use cases
 - Added middleware running in development providing enhanced debugging capabilities
 - Added useful extensions for the `IMfComponentService` service
