@@ -2,7 +2,7 @@
 
 public class MfRepository : IMfRepository, IDisposable
 {
-	private readonly List<MicrofrontendPackage> _microfrontends = new();
+    private readonly List<MicrofrontendPackage> _microfrontends = new();
     private readonly ISnapshotService _snapshot;
 
     public event EventHandler? PackagesChanged;
@@ -10,9 +10,9 @@ public class MfRepository : IMfRepository, IDisposable
     public MfRepository(ISnapshotService snapshot)
     {
         _snapshot = snapshot;
-	}
+    }
 
-	public IEnumerable<MicrofrontendPackage> Packages => _microfrontends;
+    public IEnumerable<MicrofrontendPackage> Packages => _microfrontends;
 
     public MicrofrontendPackage? GetPackage(string name) => _microfrontends.FirstOrDefault(m => m.Name == name);
 

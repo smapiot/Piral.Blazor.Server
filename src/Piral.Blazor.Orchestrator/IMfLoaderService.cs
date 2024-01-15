@@ -2,7 +2,7 @@
 
 public interface IMfLoaderService
 {
-	void ConnectMicrofrontends(CancellationToken cancellationToken);
+    void ConnectMicrofrontends(CancellationToken cancellationToken);
 
-	Task LoadMicrofrontends(CancellationToken cancellationToken);
+    Task LoadMicrofrontends(CancellationToken cancellationToken);
 }

@@ -11,9 +11,9 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
     private readonly List<string> _contentRoots = new();
 
     public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events)
-		: this(assembly, assembly.GetName(), container, events)
-	{
-	}
+        : this(assembly, assembly.GetName(), container, events)
+    {
+    }
 
     private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events)
         : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events)

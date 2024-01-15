@@ -14,8 +14,8 @@ namespace Piral.Blazor.Orchestrator;
 
 internal class NugetService : INugetService
 {
-	private readonly NuGet.Common.ILogger _logger = NullLogger.Instance;
-	private readonly NuGetFramework _currentFramework = NuGetFramework.Parse("net8.0");
+    private readonly ILogger _logger = NullLogger.Instance;
+    private readonly NuGetFramework _currentFramework = NuGetFramework.Parse("net8.0");
     private readonly FrameworkReducer _frameworkReducer = new();
 
     private readonly SourceCacheContext _cache = new();
@@ -25,17 +25,17 @@ internal class NugetService : INugetService
     {
         var feeds = configuration.GetSection("Microfrontends:NugetFeeds").Get<Dictionary<string, NugetFeedConfig>>()!;
 
-        _repositories = feeds.Values.Select(m =>
-		{
-			var repo = Repository.Factory.GetCoreV3(m.Url);
+        _repositories = feeds?.Values.Select(m =>
+        {
+            var repo = Repository.Factory.GetCoreV3(m.Url);
 
-			if (m.Token is not null)
-			{
-				repo.PackageSource.Credentials = new PackageSourceCredential(m.Url, m.User, m.Token, true, null);
+            if (m.Token is not null)
+            {
+                repo.PackageSource.Credentials = new PackageSourceCredential(m.Url, m.User, m.Token, true, null);
             }
 
-			return repo;
-        }).ToList();
+            return repo;
+        }).ToList() ?? Enumerable.Empty<SourceRepository>();
     }
 
     public IEnumerable<PackageDependency> ListDependencies(PackageArchiveReader reader)
@@ -50,19 +50,19 @@ internal class NugetService : INugetService
             return dependencyGroup.Packages;
         }
 
-        return Enumerable.Empty<PackageDependency>();
+        return [];
     }
 
-	public async Task<PackageArchiveReader?> DownloadPackage(string packageName, string packageVersion)
-	{
+    public async Task<PackageArchiveReader?> DownloadPackage(string packageName, string packageVersion)
+    {
         var version = NuGetVersion.Parse(packageVersion);
 
-		foreach (var repository in _repositories)
+        foreach (var repository in _repositories)
         {
             var resource = await repository.GetResourceAsync<FindPackageByIdResource>()!;
-			var exists = await resource.DoesPackageExistAsync(packageName, version, _cache, _logger, CancellationToken.None);
+            var exists = await resource.DoesPackageExistAsync(packageName, version, _cache, _logger, CancellationToken.None);
 
-			if (exists)
+            if (exists)
             {
                 var stream = new MemoryStream();
                 await resource.CopyNupkgToStreamAsync(packageName, version, stream, _cache, _logger, CancellationToken.None);
@@ -70,26 +70,26 @@ internal class NugetService : INugetService
             }
         }
 
-		return null;
-	}
+        return null;
+    }
 
     public async Task<IEnumerable<NugetEntry>> RetrieveDependencies(string packageName, string packageVersion)
     {
         var resolver = new PackageResolver();
 
         // Find all potential dependencies
-        var packages = new ConcurrentDictionary<SourcePackageDependencyInfo, int>(PackageIdentityComparer.Default);
+        var packages = new ConcurrentDictionary<PackageIdentity, int>(PackageIdentityComparer.Default);
 
         await ListAllPackageDependencies(new PackageIdentity(packageName, NuGetVersion.Parse(packageVersion)), packages);
 
         // Find the best version for each package
         var resolverContext = new PackageResolverContext(
             dependencyBehavior: DependencyBehavior.Lowest,
-            targetIds: new[] { packageName },
+            targetIds: [packageName],
             requiredPackageIds: Enumerable.Empty<string>(),
             packagesConfig: Enumerable.Empty<PackageReference>(),
             preferredVersions: Enumerable.Empty<PackageIdentity>(),
-            availablePackages: packages.Keys,
+            availablePackages: packages.Keys.OfType<SourcePackageDependencyInfo>(),
             _repositories.Select(r => r.PackageSource),
             _logger);
 
@@ -100,7 +100,7 @@ internal class NugetService : INugetService
         });
     }
 
-    private async Task ListAllPackageDependencies(PackageIdentity package, ConcurrentDictionary<SourcePackageDependencyInfo, int> dependencies)
+    private async Task ListAllPackageDependencies(PackageIdentity package, ConcurrentDictionary<PackageIdentity, int> dependencies)
     {
         if (!dependencies.TryGetValue(package, out _))
         {
@@ -122,8 +122,8 @@ internal class NugetService : INugetService
     }
 
     class NugetFeedConfig
-	{
-		public string Url { get; set; } = string.Empty;
+    {
+        public string Url { get; set; } = string.Empty;
 
         public string? User { get; set; }
 

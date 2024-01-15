@@ -9,14 +9,14 @@ public class MfOrchestrationService : IHostedService
 
     public MfOrchestrationService(IMfLoaderService mfLoaderService)
     {
-		_mfLoaderService = mfLoaderService;
+        _mfLoaderService = mfLoaderService;
         _cts = new CancellationTokenSource();
     }
 
     public async Task StartAsync(CancellationToken ct)
     {
         await _mfLoaderService.LoadMicrofrontends(ct);
-	    _mfLoaderService.ConnectMicrofrontends(_cts.Token);
+        _mfLoaderService.ConnectMicrofrontends(_cts.Token);
     }
 
     public Task StopAsync(CancellationToken ct)

@@ -9,7 +9,7 @@ namespace Piral.Blazor.Orchestrator.Loader;
 public class MfDiscoveryLoaderService : IMfLoaderService
 {
     private readonly HttpClient _client;
-	private readonly IMfRepository _repository;
+    private readonly IMfRepository _repository;
     private readonly IMfPackageService _package;
     private readonly string _feedUrl;
     private readonly string _wsUrl;
