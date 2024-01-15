@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Piral.Blazor.Shared", "Pira
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piral.Blazor.Sdk", "Piral.Blazor.Sdk\Piral.Blazor.Sdk.csproj", "{3661FCDF-E70B-49F9-A91C-71408C42AACB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piral.Blazor.Cli", "Piral.Blazor.Cli\Piral.Blazor.Cli.csproj", "{4E271BAF-FEEB-46C5-8C0E-6CDF75BF1533}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3661FCDF-E70B-49F9-A91C-71408C42AACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3661FCDF-E70B-49F9-A91C-71408C42AACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3661FCDF-E70B-49F9-A91C-71408C42AACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E271BAF-FEEB-46C5-8C0E-6CDF75BF1533}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E271BAF-FEEB-46C5-8C0E-6CDF75BF1533}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E271BAF-FEEB-46C5-8C0E-6CDF75BF1533}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E271BAF-FEEB-46C5-8C0E-6CDF75BF1533}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

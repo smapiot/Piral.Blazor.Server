@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>piral-blazor-server</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florian Rappl</Authors>
     <Company>smapiot</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
