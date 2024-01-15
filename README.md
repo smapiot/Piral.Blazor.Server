@@ -207,7 +207,7 @@ As an example, the following is a valid *csproj* file for a micro frontend:
 <Project Sdk="Piral.Blazor.Sdk/0.1.0">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Version>0.4.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
