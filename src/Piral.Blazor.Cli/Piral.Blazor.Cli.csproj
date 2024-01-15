@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackAsTool>true</PackAsTool>
+    <AssemblyTitle>piral-blazor-server</AssemblyTitle>
     <ToolCommandName>piral-blazor-server</ToolCommandName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florian Rappl</Authors>
@@ -19,6 +20,10 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/smapiot/Piral.Blazor.Server</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="" />

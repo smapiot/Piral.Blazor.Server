@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using CommandLine;
+using Piral.Blazor.Cli;
+using System.Reflection;
 
 static void ShowBot(string message)
 {
@@ -45,21 +47,30 @@ static void ShowBot(string message)
     Console.WriteLine(bot);
 }
 
-var toolName = "piral-blazor-server";
-
-if (args.Length == 0)
+static int RunCreateEmulator(CreateEmulatorOptions opts)
 {
-    var versionString = Assembly
-        .GetEntryAssembly()?
-        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-        .InformationalVersion
-        .ToString();
-
-    Console.WriteLine($"{toolName} v{versionString}");
-    Console.WriteLine("-------------");
-    Console.WriteLine("\nUsage:");
-    Console.WriteLine($"  {toolName} <message>");
-    return;
+    return 0;
 }
 
-ShowBot(string.Join(' ', args));
+static int RunPrefillCache(PrefillCacheOptions opts)
+{
+    return 0;
+}
+
+static int ShowError(IEnumerable<Error> errs)
+{
+    if (errs.Where(err => err is not HelpVerbRequestedError && err is not VersionRequestedError).Any())
+    {
+        ShowBot("That did not work.");
+        return 1;
+    }
+
+    return 0;
+}
+
+Parser.Default.ParseArguments<CreateEmulatorOptions, PrefillCacheOptions>(args)
+    .MapResult(
+        (CreateEmulatorOptions opts) => RunCreateEmulator(opts),
+        (PrefillCacheOptions opts) => RunPrefillCache(opts),
+        errs => ShowError(errs)
+    );
