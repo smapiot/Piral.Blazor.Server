@@ -149,7 +149,7 @@ The script will be injected (and run) from the orchestrator.
 
 From scratch you can create a new Razor Component Library (RCL) project. By changing the csproj file's SDK to `Piral.Blazor.Sdk` you will be able to debug / develop this very conveniently.
 
-The RCL has to be for .NET 7 (or newer).
+The RCL has to be for .NET 8.
 
 ### Module Definition / Registration and Usage of Components
 

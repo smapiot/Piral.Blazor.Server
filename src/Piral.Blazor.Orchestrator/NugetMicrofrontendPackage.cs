@@ -7,7 +7,7 @@ namespace Piral.Blazor.Orchestrator;
 
 internal class NugetMicrofrontendPackage : MicrofrontendPackage
 {
-    private const string target = "net7.0";
+    private const string target = "net8.0";
 
     private readonly Dictionary<string, PackageArchiveReader> _packages;
     private readonly AssemblyLoadContext _context;

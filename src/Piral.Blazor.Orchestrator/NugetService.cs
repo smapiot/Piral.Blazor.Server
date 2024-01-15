@@ -8,13 +8,14 @@ using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Resolver;
 using NuGet.Versioning;
+using System.Collections.Concurrent;
 
 namespace Piral.Blazor.Orchestrator;
 
 internal class NugetService : INugetService
 {
 	private readonly NuGet.Common.ILogger _logger = NullLogger.Instance;
-	private readonly NuGetFramework _currentFramework = NuGetFramework.Parse("net7.0");
+	private readonly NuGetFramework _currentFramework = NuGetFramework.Parse("net8.0");
     private readonly FrameworkReducer _frameworkReducer = new();
 
     private readonly SourceCacheContext _cache = new();
@@ -77,7 +78,7 @@ internal class NugetService : INugetService
         var resolver = new PackageResolver();
 
         // Find all potential dependencies
-        var packages = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+        var packages = new ConcurrentDictionary<SourcePackageDependencyInfo, int>(PackageIdentityComparer.Default);
 
         await ListAllPackageDependencies(new PackageIdentity(packageName, NuGetVersion.Parse(packageVersion)), packages);
 
@@ -88,7 +89,7 @@ internal class NugetService : INugetService
             requiredPackageIds: Enumerable.Empty<string>(),
             packagesConfig: Enumerable.Empty<PackageReference>(),
             preferredVersions: Enumerable.Empty<PackageIdentity>(),
-            availablePackages: packages,
+            availablePackages: packages.Keys,
             _repositories.Select(r => r.PackageSource),
             _logger);
 
@@ -99,16 +100,16 @@ internal class NugetService : INugetService
         });
     }
 
-    private async Task ListAllPackageDependencies(PackageIdentity package, HashSet<SourcePackageDependencyInfo> dependencies)
+    private async Task ListAllPackageDependencies(PackageIdentity package, ConcurrentDictionary<SourcePackageDependencyInfo, int> dependencies)
     {
-        if (!dependencies.Contains(package))
+        if (!dependencies.TryGetValue(package, out _))
         {
             await Parallel.ForEachAsync(_repositories, async (repository, cancellationToken) =>
             {
                 var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
                 var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, _currentFramework, _cache, _logger, cancellationToken);
 
-                if (dependencyInfo is not null && dependencies.Add(dependencyInfo))
+                if (dependencyInfo is not null && dependencies.TryAdd(dependencyInfo, 1))
                 {
                     await Parallel.ForEachAsync(dependencyInfo.Dependencies, async (dependency, _) =>
                     {

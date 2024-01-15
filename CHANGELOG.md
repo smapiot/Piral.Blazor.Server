@@ -1,5 +1,10 @@
 # Piral.Blazor.Server Changelog
 
+## 0.4.0 (tbd)
+
+- Updated to .NET 8
+- Fixed issue with parallelized loading of micro frontends
+
 ## 0.3.0 (November 15, 2023)
 
 - Updated the API of the `IMfComponentService` interface to support more use cases
