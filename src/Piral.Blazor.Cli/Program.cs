@@ -1,6 +1,5 @@
 ﻿using CommandLine;
 using Piral.Blazor.Cli;
-using System.Reflection;
 
 static void ShowBot(string message)
 {
@@ -47,14 +46,18 @@ static void ShowBot(string message)
     Console.WriteLine(bot);
 }
 
-static int RunCreateEmulator(CreateEmulatorOptions opts)
+static int Run(ICommand command)
 {
-    return 0;
-}
-
-static int RunPrefillCache(PrefillCacheOptions opts)
-{
-    return 0;
+    try
+    {
+        var task = command.Run();
+        task.Wait();
+        return 0;
+    }
+    catch
+    {
+        return 1;
+    }
 }
 
 static int ShowError(IEnumerable<Error> errs)
@@ -70,7 +73,7 @@ static int ShowError(IEnumerable<Error> errs)
 
 Parser.Default.ParseArguments<CreateEmulatorOptions, PrefillCacheOptions>(args)
     .MapResult(
-        (CreateEmulatorOptions opts) => RunCreateEmulator(opts),
-        (PrefillCacheOptions opts) => RunPrefillCache(opts),
-        errs => ShowError(errs)
+        (CreateEmulatorOptions opts) => Run(opts),
+        (PrefillCacheOptions opts) => Run(opts),
+        ShowError
     );
