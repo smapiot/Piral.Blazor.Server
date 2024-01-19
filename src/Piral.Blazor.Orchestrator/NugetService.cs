@@ -23,7 +23,7 @@ internal class NugetService : INugetService
 
     public NugetService(IConfiguration configuration)
     {
-        var feeds = configuration.GetSection("Microfrontends:NugetFeeds").Get<Dictionary<string, NugetFeedConfig>>()!;
+        var feeds = configuration.GetSection("Microfrontends:NugetFeeds").Get<Dictionary<string, NugetFeedConfig>>();
 
         _repositories = feeds?.Values.Select(m =>
         {
@@ -35,7 +35,7 @@ internal class NugetService : INugetService
             }
 
             return repo;
-        }).ToList() ?? Enumerable.Empty<SourceRepository>();
+        }).ToList() ?? Enumerable.Repeat(Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json"), 1);
     }
 
     public IEnumerable<PackageDependency> ListDependencies(PackageArchiveReader reader)

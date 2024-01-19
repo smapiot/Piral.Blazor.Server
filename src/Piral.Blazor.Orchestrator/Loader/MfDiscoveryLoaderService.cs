@@ -21,8 +21,8 @@ public class MfDiscoveryLoaderService : IMfLoaderService
         _repository = repository;
         _snapshot = snapshot;
         _package = package;
-        _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl")!;
-        _wsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl")!;
+        _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl") ?? "https://feed.piral.cloud/api/v1/pilet/empty";
+        _wsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl") ?? "wss://feed.piral.cloud/api/v1/pilet/empty";
 
         repository.PackagesChanged += OnPackagesChanged;
     }

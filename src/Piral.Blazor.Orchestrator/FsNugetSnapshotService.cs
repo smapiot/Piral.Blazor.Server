@@ -20,7 +20,7 @@ public class FsNugetSnapshotService : ISnapshotService
 
     public FsNugetSnapshotService(INugetService nuget, IConfiguration configuration)
     {
-        var cacheDir = configuration.GetValue<string>("Microfrontends:CacheDir")!;
+        var cacheDir = configuration.GetValue<string>("Microfrontends:CacheDir") ?? ".cache";
         _nuget = nuget;
         _snapshot = Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, cacheDir));
         _initialized = false;

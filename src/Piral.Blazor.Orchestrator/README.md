@@ -35,8 +35,9 @@ using Piral.Blazor.Orchestrator.Loader;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMicrofrontends<MfDiscoveryLoaderService>();
@@ -47,11 +48,12 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAntiforgery();
 app.UseRouting();
 app.UseMicrofrontends();
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();
 ```
@@ -104,37 +106,91 @@ The rest you can keep (or change) as you like.
 
 **Note**: Using the `MfRouteView` in the code above is *optional*. We do recommend it, however, if you just keep on using `RouteView` then it would work, too.
 
-Finally, remove the reference to any `blazor.server.js` script, i.e., transform your `_host.cshtml` to have no `<script>` tag such as:
+Finally, remove the reference to any Blazor script, i.e., transform your `App.razor` to have no `<script>` tag such as:
 
 ```html
-@page "/"
-@using Microsoft.AspNetCore.Components.Web
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
-    <link href="nne.server.app.styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="favicon.png"/>
-    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="TractorStore.styles.css" />
+    <HeadOutlet />
 </head>
-<body>
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
 
-    <div id="blazor-error-ui">
-        <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
-        </environment>
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
+<body>
+    <Routes />
 </body>
 </html>
 ```
 
 The script will be injected (and run) from the orchestrator.
+
+## Extended Configuration
+
+By default, the micro frontend loader takes an empty feed of micro frontends. This way, nothing will be loaded and the application will remain empty with respect to the loaded micro frontends. To change this you will need to adjust the configuration, e.g., by modifying the `appsettings.json` file:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Microfrontends": {
+    "CacheDir": ".cache",
+    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/pilet/empty",
+    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/empty",
+    "NugetFeeds": {
+      "Public": {
+        "Url": "https://api.nuget.org/v3/index.json"
+      }
+    }
+  }
+}
+```
+
+The given configuration is an example. The `Microfrontends` section is used to include the respective configuration. If this configuration is not present then default values (which match the shown values exactly) are applied. If you, e.g., want to have your cache stored in a different (relative or absolute) directory you'd need to have at least a property `CacheDir` in the config.
+
+The `NugetFeeds` need to have all the feeds you want to use for resolving the dependencies of your micro frontends. Keep in mind that the actual *nupkg* file containing the micro frontends also needs to be hosted somewhere. This feed, which is usually referenced from the feed service, therefore also needs to be part of this configuration.
+
+An example with more NuGet feeds:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Microfrontends": {
+    "CacheDir": ".cache",
+    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/pilet/empty",
+    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/empty",
+    "NugetFeeds": {
+      "Public": {
+        "Url": "https://api.nuget.org/v3/index.json"
+      },
+      "GitHub": {
+        "Url": "https://nuget.pkg.github.com/MyUserName/index.json",
+        "User": "",
+        "Token": ""
+      },
+      "Telerik": {
+        "Url": "https://nuget.telerik.com/v3/index.json",
+        "User": "",
+        "Token": ""
+      }
+    }
+  }
+}
+```
+
+As you can see the `User` and `Token` fields, which are usually required for authenticating against a private feed, are left empty. This is not a mistake, but actually a best practice. You can use the .NET secret manager to then fill these parts. More details can be found [in the Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=linux).
