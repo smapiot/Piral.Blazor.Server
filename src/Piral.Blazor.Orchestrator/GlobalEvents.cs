@@ -52,7 +52,7 @@ internal class GlobalEvents : IEvents
 
     public void AddEventListener<T>(string type, Action<T> handler)
     {
-        _eventMap.AddOrUpdate(type, (_) => new List<Delegate> { handler }, (_, list) =>
+        _eventMap.AddOrUpdate(type, (_) => [handler], (_, list) =>
         {
             list.Add(handler);
             return list;
@@ -61,7 +61,7 @@ internal class GlobalEvents : IEvents
 
     public void RemoveEventListener<T>(string type, Action<T> handler)
     {
-        _eventMap.AddOrUpdate(type, (_) => new List<Delegate> { }, (_, list) =>
+        _eventMap.AddOrUpdate(type, (_) => [], (_, list) =>
         {
             list.Remove(handler);
             return list;

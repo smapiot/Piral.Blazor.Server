@@ -86,9 +86,9 @@ internal class NugetService : INugetService
         var resolverContext = new PackageResolverContext(
             dependencyBehavior: DependencyBehavior.Lowest,
             targetIds: [packageName],
-            requiredPackageIds: Enumerable.Empty<string>(),
-            packagesConfig: Enumerable.Empty<PackageReference>(),
-            preferredVersions: Enumerable.Empty<PackageIdentity>(),
+            requiredPackageIds: [],
+            packagesConfig: [],
+            preferredVersions: [],
             availablePackages: packages.Keys.OfType<SourcePackageDependencyInfo>(),
             _repositories.Select(r => r.PackageSource),
             _logger);

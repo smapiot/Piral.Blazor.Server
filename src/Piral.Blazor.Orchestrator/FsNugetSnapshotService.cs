@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NuGet.Packaging;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Piral.Blazor.Orchestrator;
@@ -9,11 +10,13 @@ public class FsNugetSnapshotService : ISnapshotService
 {
     private readonly ConcurrentDictionary<string, PackageArchiveReader> _db = new();
     private readonly ConcurrentDictionary<string, IEnumerable<NugetEntry>> _deps = new();
-    private readonly List<NugetEntry> _mfs = new();
+    private readonly ConcurrentQueue<Func<Task>> _jobs = new();
+    private readonly List<NugetEntry> _mfs = [];
 
     private readonly INugetService _nuget;
     private readonly DirectoryInfo _snapshot;
     private bool _initialized;
+    private Task? _queue;
 
     public FsNugetSnapshotService(INugetService nuget, IConfiguration configuration)
     {
@@ -23,16 +26,31 @@ public class FsNugetSnapshotService : ISnapshotService
         _initialized = false;
     }
 
-    public async Task UpdateMicrofrontends(IEnumerable<string> ids)
+    public Task UpdateMicrofrontends(IEnumerable<string> ids)
     {
-        var entries = ids.Select(m =>
+        return EnqueueJob(() =>
         {
-            var (name, version) = m.GetIdentity();
-            return new NugetEntry { Name = name, Version = version };
+            var entries = ids.Select(m =>
+            {
+                var (name, version) = m.GetIdentity();
+                return new NugetEntry { Name = name, Version = version };
+            });
+            _mfs.Clear();
+            _mfs.AddRange(entries);
+            return StoreMicrofrontendsSnapshot(entries);
         });
-        _mfs.Clear();
-        _mfs.AddRange(entries);
-        await StoreMicrofrontendsSnapshot(entries);
+    }
+
+    private Task EnqueueJob(Func<Task> process)
+    {
+        _jobs.Enqueue(process);
+
+        if (_queue is null || _queue.Status == TaskStatus.RanToCompletion)
+        {
+            _queue = ProcessJobs();
+        }
+
+        return _queue;
     }
 
     public async Task<IEnumerable<string>> AvailableMicrofrontends()
@@ -89,7 +107,7 @@ public class FsNugetSnapshotService : ISnapshotService
             }
         }
 
-        return result ?? Enumerable.Empty<NugetEntry>();
+        return result ?? [];
     }
 
     private async Task RestorePackageSnapshot()
@@ -147,5 +165,20 @@ public class FsNugetSnapshotService : ISnapshotService
         var target = Path.Combine(_snapshot.FullName, fn);
         using var fs = File.OpenWrite(target);
         await JsonSerializer.SerializeAsync(fs, dependencies.ToList());
+    }
+
+    private async Task ProcessJobs()
+    {
+        while (_jobs.TryPeek(out var process))
+        {
+            try
+            {
+                await process();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Problem with snapshot job: {ex.Message}");
+            }
+        }
     }
 }

@@ -4,21 +4,14 @@ using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage : IDisposable
+public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events) : IDisposable
 {
-    private readonly RelatedMfAppService _app;
-    private readonly IModuleContainerService _container;
+    private readonly RelatedMfAppService _app = new(name, version, events);
+    private readonly IModuleContainerService _container = container;
     public event EventHandler? PackageChanged;
 
     private IMfModule? _module;
-    private bool _disabled;
-
-    public MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events)
-    {
-        _app = new RelatedMfAppService(name, version, events);
-        _container = container;
-        _disabled = false;
-    }
+    private bool _disabled = false;
 
     public string Name => _app.Name;
 
@@ -52,7 +45,7 @@ public abstract class MicrofrontendPackage : IDisposable
         GetAssembly()?.
         GetReferencedAssemblies().
         Select(m => m.Name ?? "").
-        Where(m => !string.IsNullOrEmpty(m)) ?? Enumerable.Empty<string>();
+        Where(m => !string.IsNullOrEmpty(m)) ?? [];
 
     public IEnumerable<Type> GetComponents(string name)
     {
@@ -61,7 +54,7 @@ public abstract class MicrofrontendPackage : IDisposable
             return result;
         }
 
-        return Enumerable.Empty<Type>();
+        return [];
     }
 
     public async Task Init()
@@ -100,26 +93,19 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public abstract Stream? GetFile(string path);
 
-    sealed class RelatedMfAppService : IMfAppService
+    sealed class RelatedMfAppService(string name, string version, IEvents events) : IMfAppService
     {
-        private readonly IEvents _events;
+        private readonly IEvents _events = events;
 
-        public Dictionary<string, List<Type>> Components { get; } = new();
+        public Dictionary<string, List<Type>> Components { get; } = [];
 
-        public List<string> Styles { get; } = new();
+        public List<string> Styles { get; } = [];
 
-        public List<string> Scripts { get; } = new();
+        public List<string> Scripts { get; } = [];
 
-        public string Name { get; }
+        public string Name { get; } = name;
 
-        public string Version { get; }
-
-        public RelatedMfAppService(string name, string version, IEvents events)
-        {
-            Name = name;
-            Version = version;
-            _events = events;
-        }
+        public string Version { get; } = version;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {
@@ -161,7 +147,7 @@ public abstract class MicrofrontendPackage : IDisposable
                 throw new InvalidOperationException($"Components registered in 'MapComponent' need to have a non-empty name. No valid name given for '{nameof(T)}'.");
             }
 
-            var components = Components.GetValueOrDefault(name) ?? new List<Type>();
+            var components = Components.GetValueOrDefault(name) ?? [];
             components.Add(typeof(T));
             Components[name] = components;
         }

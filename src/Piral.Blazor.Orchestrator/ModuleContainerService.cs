@@ -5,16 +5,10 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class ModuleContainerService : IModuleContainerService
+internal class ModuleContainerService(IServiceProvider globalProvider) : IModuleContainerService
 {
-    private readonly IServiceProvider _globalProvider;
-    private readonly Dictionary<AssemblyLoadContext, IScopeResolver> _resolvers;
-
-    public ModuleContainerService(IServiceProvider globalProvider)
-    {
-        _globalProvider = globalProvider;
-        _resolvers = new Dictionary<AssemblyLoadContext, IScopeResolver>();
-    }
+    private readonly IServiceProvider _globalProvider = globalProvider;
+    private readonly Dictionary<AssemblyLoadContext, IScopeResolver> _resolvers = [];
 
     public async Task<IMfModule> ConfigureModule(Assembly assembly, IMfAppService app)
     {
@@ -91,14 +85,9 @@ internal class ModuleContainerService : IModuleContainerService
         }
     }
 
-    sealed class WrappedMfService : IMfService
+    sealed class WrappedMfService(IMfAppService app) : IMfService
     {
-        private readonly IMfAppService _app;
-
-        public WrappedMfService(IMfAppService app)
-        {
-            _app = app;
-        }
+        private readonly IMfAppService _app = app;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {

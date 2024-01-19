@@ -1,17 +1,10 @@
 ﻿namespace Piral.Blazor.Orchestrator.Loader;
 
-public class MfSnapshotLoaderService : IMfLoaderService
+public class MfSnapshotLoaderService(IMfRepository repository, IMfPackageService package, ISnapshotService snapshot) : IMfLoaderService
 {
-    private readonly IMfRepository _repository;
-    private readonly IMfPackageService _package;
-    private readonly ISnapshotService _snapshot;
-
-    public MfSnapshotLoaderService(IMfRepository repository, IMfPackageService package, ISnapshotService snapshot)
-    {
-        _repository = repository;
-        _package = package;
-        _snapshot = snapshot;
-    }
+    private readonly IMfRepository _repository = repository;
+    private readonly IMfPackageService _package = package;
+    private readonly ISnapshotService _snapshot = snapshot;
 
     public void ConnectMicrofrontends(CancellationToken cancellationToken)
     {

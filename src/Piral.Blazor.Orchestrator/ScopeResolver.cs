@@ -13,16 +13,10 @@ public interface IScopeResolver : IDisposable
     IServiceProvider Resolve(IServiceProvider scope);
 }
 
-internal class ScopeResolver : IScopeResolver
+internal class ScopeResolver(IServiceCollection services) : IScopeResolver
 {
-    private readonly IServiceCollection _services;
-    private readonly ConditionalWeakTable<IServiceProvider, IServiceProvider> _mapping;
-
-    public ScopeResolver(IServiceCollection services)
-    {
-        _services = services;
-        _mapping = new();
-    }
+    private readonly IServiceCollection _services = services;
+    private readonly ConditionalWeakTable<IServiceProvider, IServiceProvider> _mapping = [];
 
     public void Dispose()
     {

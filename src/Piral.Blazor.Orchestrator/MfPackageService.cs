@@ -2,18 +2,11 @@
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class MfPackageService : IMfPackageService
+internal class MfPackageService(IModuleContainerService container, ISnapshotService snapshot, IEvents events) : IMfPackageService
 {
-    private readonly IModuleContainerService _container;
-    private readonly ISnapshotService _snapshot;
-    private readonly IEvents _events;
-
-    public MfPackageService(IModuleContainerService container, ISnapshotService snapshot, IEvents events)
-    {
-        _container = container;
-        _snapshot = snapshot;
-        _events = events;
-    }
+    private readonly IModuleContainerService _container = container;
+    private readonly ISnapshotService _snapshot = snapshot;
+    private readonly IEvents _events = events;
 
     public async Task<MicrofrontendPackage> LoadMicrofrontend(string name, string version)
     {

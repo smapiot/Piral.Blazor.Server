@@ -5,6 +5,8 @@
 - Updated to .NET 8
 - Fixed issue with parallelized loading of micro frontends
 - Fixed issue when config section `Microfrontends:NugetFeeds` does not exist
+- Fixed issue with the snapshot service requiring write access in cache-only
+- Added dotnet CLI tool `piral-blazor-server`
 
 ## 0.3.0 (November 15, 2023)
 

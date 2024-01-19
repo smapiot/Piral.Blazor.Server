@@ -6,15 +6,15 @@ A dedicated and fully functional server-side composed micro frontend solution fo
 
 ## Installation & Setup
 
-For using `Piral.Blazor.Server` you'll need an ASP.NET Core project using Blazor (server).
+For using `Piral.Blazor.Orchestrator` you'll need an ASP.NET Core project using Blazor (server).
 
 You'll only need to add a single NuGet package to the project:
 
 ```ps1
-install-package Piral.Blazor.Server
+install-package Piral.Blazor.Orchestrator
 ```
 
-With the package installed you'll need to configure your project to actually use `Piral.Blazor.Server`.
+With the package installed you'll need to configure your project to actually use `Piral.Blazor.Orchestrator`.
 
 ```cs
 // Add DI services
@@ -119,7 +119,7 @@ Finally, remove the reference to any `blazor.server.js` script, i.e., transform 
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="nne.server.app.styles.css" rel="stylesheet" />
+    <link href="my.server.app.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png"/>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
@@ -211,7 +211,7 @@ As an example, the following is a valid *csproj* file for a micro frontend:
     <Version>0.4.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AppShell>NNE.Emulator/0.1.0</AppShell>
+    <AppShell>My.Emulator/0.1.0</AppShell>
   </PropertyGroup>
 
   <ItemGroup>

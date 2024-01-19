@@ -3,26 +3,18 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class MicrofrontendsMiddleware
+internal class MicrofrontendsMiddleware(RequestDelegate next, IMfRepository repository, IMfDebugConnector debug)
 {
-    private readonly FileExtensionContentTypeProvider _contentTypeProvider;
-    private readonly RequestDelegate _next;
-    private readonly IMfRepository _repository;
-    private readonly IMfDebugConnector _debug;
-
-    public MicrofrontendsMiddleware(RequestDelegate next, IMfRepository repository, IMfDebugConnector debug)
-    {
-        _contentTypeProvider = new FileExtensionContentTypeProvider();
-        _next = next;
-        _repository = repository;
-        _debug = debug;
-    }
+    private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
+    private readonly RequestDelegate _next = next;
+    private readonly IMfRepository _repository = repository;
+    private readonly IMfDebugConnector _debug = debug;
 
     public async Task InvokeAsync(HttpContext context)
     {
         if (context.Request.Path.StartsWithSegments("/assets"))
         {
-            var segments = context.Request.Path.Value?.Split('/') ?? Array.Empty<string>();
+            var segments = context.Request.Path.Value?.Split('/') ?? [];
 
             if (segments.Length > 3)
             {

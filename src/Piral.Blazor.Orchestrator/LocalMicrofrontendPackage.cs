@@ -8,7 +8,7 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
 {
     private readonly Assembly _assembly;
     private readonly AssemblyLoadContext _context;
-    private readonly List<string> _contentRoots = new();
+    private readonly List<string> _contentRoots = [];
 
     public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events)
         : this(assembly, assembly.GetName(), container, events)

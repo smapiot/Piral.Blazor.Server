@@ -11,16 +11,29 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private readonly HttpClient _client;
     private readonly IMfRepository _repository;
     private readonly IMfPackageService _package;
+    private readonly ISnapshotService _snapshot;
     private readonly string _feedUrl;
     private readonly string _wsUrl;
 
-    public MfDiscoveryLoaderService(IHttpClientFactory client, IMfRepository repository, IMfPackageService package, IConfiguration configuration)
+    public MfDiscoveryLoaderService(IHttpClientFactory client, IMfRepository repository, IMfPackageService package, ISnapshotService snapshot, IConfiguration configuration)
     {
         _client = client.CreateClient();
         _repository = repository;
+        _snapshot = snapshot;
         _package = package;
         _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl")!;
         _wsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl")!;
+
+        repository.PackagesChanged += OnPackagesChanged;
+    }
+
+    private void OnPackagesChanged(object? sender, EventArgs e)
+    {
+        var ids = _repository.Packages
+            .Select(m => new NugetEntry { Name = m.Name, Version = m.Version })
+            .Select(m => m.MakePackageId());
+
+        _snapshot.UpdateMicrofrontends(ids);
     }
 
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)

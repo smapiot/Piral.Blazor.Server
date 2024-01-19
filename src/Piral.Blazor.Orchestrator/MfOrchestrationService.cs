@@ -2,16 +2,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Piral.Blazor.Orchestrator;
 
-public class MfOrchestrationService : IHostedService
+public class MfOrchestrationService(IMfLoaderService mfLoaderService) : IHostedService
 {
-    private readonly IMfLoaderService _mfLoaderService;
-    private readonly CancellationTokenSource _cts;
-
-    public MfOrchestrationService(IMfLoaderService mfLoaderService)
-    {
-        _mfLoaderService = mfLoaderService;
-        _cts = new CancellationTokenSource();
-    }
+    private readonly IMfLoaderService _mfLoaderService = mfLoaderService;
+    private readonly CancellationTokenSource _cts = new();
 
     public async Task StartAsync(CancellationToken ct)
     {

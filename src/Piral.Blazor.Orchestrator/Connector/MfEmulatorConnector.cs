@@ -7,22 +7,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace Piral.Blazor.Orchestrator.Connector;
 
-internal class MfEmulatorConnector : IMfDebugConnector
+internal class MfEmulatorConnector(IMfRepository repository, IEvents events) : IMfDebugConnector
 {
-    private readonly IEnumerable<string> _styles = Enumerable.Empty<string>();
+    private readonly IEnumerable<string> _styles = [];
     private readonly IEnumerable<string> _scripts = new[] { "_content/Piral.Blazor.Orchestrator/debug.js" };
-    private readonly IMfRepository _repository;
-    private readonly IEvents _events;
+    private readonly IMfRepository _repository = repository;
+    private readonly IEvents _events = events;
 
     public IEnumerable<string> Styles => _styles;
 
     public IEnumerable<string> Scripts => _scripts;
-
-    public MfEmulatorConnector(IMfRepository repository, IEvents events)
-    {
-        _repository = repository;
-        _events = events;
-    }
 
     public async Task<bool> InterceptAsync(HttpContext context)
     {
@@ -34,7 +28,7 @@ internal class MfEmulatorConnector : IMfDebugConnector
             }
             else if (context.Request.Method == "POST")
             {
-                var segments = context.Request.Path.Value?.Split('/') ?? Array.Empty<string>();
+                var segments = context.Request.Path.Value?.Split('/') ?? [];
 
                 if (segments.Length < 3)
                 {
@@ -190,16 +184,16 @@ internal class MfEmulatorConnector : IMfDebugConnector
         public MfAppInfo App { get; } = new();
 
         [JsonPropertyName("extensions")]
-        public List<string> Extensions { get; } = new();
+        public List<string> Extensions { get; } = [];
 
         [JsonPropertyName("dependencies")]
-        public List<string> Dependencies { get; } = new();
+        public List<string> Dependencies { get; } = [];
 
         [JsonPropertyName("pilets")]
-        public List<MfPiletInfo> Pilets { get; } = new();
+        public List<MfPiletInfo> Pilets { get; } = [];
 
         [JsonPropertyName("routes")]
-        public List<string> Routes { get; } = new();
+        public List<string> Routes { get; } = [];
     }
 
     class MfAppInfo

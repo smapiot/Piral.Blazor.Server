@@ -2,15 +2,9 @@
 
 public class MfRepository : IMfRepository, IDisposable
 {
-    private readonly List<MicrofrontendPackage> _microfrontends = new();
-    private readonly ISnapshotService _snapshot;
+    private readonly List<MicrofrontendPackage> _microfrontends = [];
 
     public event EventHandler? PackagesChanged;
-
-    public MfRepository(ISnapshotService snapshot)
-    {
-        _snapshot = snapshot;
-    }
 
     public IEnumerable<MicrofrontendPackage> Packages => _microfrontends;
 
@@ -30,7 +24,7 @@ public class MfRepository : IMfRepository, IDisposable
                 package.Dispose();
             }
 
-            await Update();
+            NotifyPackagesChanged(this, EventArgs.Empty);
         }
     }
 
@@ -45,7 +39,7 @@ public class MfRepository : IMfRepository, IDisposable
             _microfrontends.RemoveAll(m => m.Name == name);
             _microfrontends.Add(package);
             package.PackageChanged += NotifyPackagesChanged;
-            await Update();
+            NotifyPackagesChanged(this, EventArgs.Empty);
         }
     }
 
@@ -57,18 +51,6 @@ public class MfRepository : IMfRepository, IDisposable
             package.Dispose();
         });
         _microfrontends.Clear();
-    }
-
-    private async Task Update()
-    {
-        var ids = _microfrontends.Select(m => new NugetEntry
-        {
-            Name = m.Name,
-            Version = m.Version,
-        }).Select(m => m.MakePackageId());
-
-        await _snapshot.UpdateMicrofrontends(ids);
-        NotifyPackagesChanged(this, EventArgs.Empty);
     }
 
     private void NotifyPackagesChanged(object? sender, EventArgs e) => PackagesChanged?.Invoke(sender, e);

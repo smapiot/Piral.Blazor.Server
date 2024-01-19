@@ -16,7 +16,7 @@ internal static class Extensions
     public static string MakePackageId(this NugetEntry entry) => $"{entry.Name}@{entry.Version}";
 
     public static IEnumerable<Type> GetTypesWithAttributes(this Assembly assembly, IReadOnlyCollection<Type> attributeTypes) =>
-        assembly?.GetTypes().Where(m => m.HasAnyAttribute(attributeTypes)) ?? Enumerable.Empty<Type>();
+        assembly?.GetTypes().Where(m => m.HasAnyAttribute(attributeTypes)) ?? [];
 
     public static bool HasAnyAttribute(this Type member, IEnumerable<Type> attributeTypes) =>
         attributeTypes.Any(attributeType => Attribute.IsDefined(member, attributeType));
@@ -43,7 +43,7 @@ internal static class Extensions
 
                     if (others is PropertyInfo single)
                     {
-                        many = new List<PropertyInfo> { single };
+                        many = [single];
                         dictionary[property.Name] = many;
                     }
                     else
