@@ -1,14 +1,21 @@
-using System.Diagnostics;
 using CommandLine;
+using NuGet.Packaging;
+using NuGet.Versioning;
+using VsTools.Projects;
 
 namespace Piral.Blazor.Cli;
+
+using static Helpers;
 
 [Verb("create-emulator", HelpText = "Creates a new Piral.Blazor.Server-based emulator package.")]
 public class CreateEmulatorOptions : ICommand
 {
-    [Option('d', "directory", Required = false, HelpText = "The directory where the csproj of the app shell is located.")]
-    public string? Directory { get; set; }
-    
+    [Option('s', "source", Required = false, HelpText = "The source directory where the csproj of the app shell is located.")]
+    public string? Source { get; set; }
+
+    [Option('o', "output", Required = false, HelpText = "The output directory where the NuGet package should be stored in.")]
+    public string? Output { get; set; }
+
     [Option('n', "name", Required = false, HelpText = "The name of the emulator. Otherwise falls back to the current project name suffixed with '.Emulator'.")]
     public string? Name { get; set; }
     
@@ -17,69 +24,44 @@ public class CreateEmulatorOptions : ICommand
 
     public Task Run()
     {
-        var cwd = Path.Combine(Environment.CurrentDirectory, Directory ?? "");
-        var outDir = Path.Combine(cwd, "bin", "Release", "net8.0", "publish");
+        var srcDir = Path.Combine(Environment.CurrentDirectory, Source ?? "");
+        var buildDirRoot = Path.Combine(srcDir, "bin", "Release");
+        var buildDir = Path.Combine(buildDirRoot, "net8.0", "publish");
+        var outDir = Path.Combine(Environment.CurrentDirectory, Output ?? buildDirRoot);
 
-        RunCommand("dotnet", "publish -c Release", cwd);
+        RunCommand("dotnet", "publish -c Release", srcDir);
 
-        CreateNuspec(cwd, outDir);
+        outDir.CreateDirectoryIfNotExists();
 
-        RunCommand("nuget", "pack", outDir);
+        CreateNuGetPackage(srcDir, buildDir, outDir);
 
         return Task.CompletedTask;
     }
 
-    private void CreateNuspec(string sourceDir, string outDir)
+    private void CreateNuGetPackage(string srcDir, string buildDir, string outDir)
     {
-        var projectName = "My";
-        var projectVersion = "1.0.0";
-        var projectAuthors = "tbd.";
+        var csproj = srcDir.GetProjectFile();
+        var project = Project.Load(csproj);
+        var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
+        var projectVersion = project.GetVersion() ?? "1.0.0";
+        var projectAuthors = project.GetAuthor() ?? "tbd.";
         var name = Name ?? $"{projectName}.Emulator";
-        var version = Version ?? projectVersion;
-        var fn = Path.Combine(outDir, $"{name}.nuspec");
-        var content = $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<package xmlns=""http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"">
-    <metadata>
-        <id>{name}</id>
-        <version>{version}</version>
-        <description>The emulator for the {projectName} application.</description>
-        <authors>{projectAuthors}</authors>
-    </metadata>
-    <files>
-        <file src=""**/*"" target="""" />
-    </files>
-</package>";
+        var fn = Path.Combine(outDir, $"{name}.nupkg");
 
-        File.WriteAllText(fn, content);
-    }
-
-    private void RunCommand(string cmd, string arguments, string cwd)
-    {
-        var proc = new Process
+        var builder = new PackageBuilder
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = cmd,
-                WorkingDirectory = cwd,
-                Arguments = arguments,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-            },
+            Id = name,
+            Version = new NuGetVersion(projectVersion),
+            Description = $"The emulator for the {projectName} application."
         };
 
-        proc.OutputDataReceived += (sender, e) => Console.WriteLine($"[{cmd}] {e.Data}");
-        proc.ErrorDataReceived += (sender, e) => Console.WriteLine($"[{cmd}] {e.Data}");
+        builder.Authors.Add(projectAuthors);
 
-        proc.Start();
-        proc.BeginOutputReadLine();
-        proc.BeginErrorReadLine();
-        proc.WaitForExit();
+        builder.AddFiles(buildDir, "**/*", "");
 
-        if (proc.ExitCode != 0)
-        {
-            throw new Exception($"The '{cmd}' application exited with an error.");
-        }
+        using FileStream outputStream = new(fn, FileMode.Create);
+        builder.Save(outputStream);
+
+        Console.WriteLine($"[nuget] Package available in '{fn}'.");
     }
 }
