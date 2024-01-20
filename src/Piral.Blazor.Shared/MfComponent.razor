@@ -1,10 +1,17 @@
-@inject IMfComponentService mfs
+﻿@inject IMfComponentService mfs
 @implements IDisposable
 
 @foreach (var (pilet, component) in components)
 {
     <piral-component name="@Name" origin="@pilet">
-        <DynamicComponent Type="@component" Parameters="@Parameters" />
+        <ErrorBoundary>
+            <ChildContent>
+                <DynamicComponent Type="@component" Parameters="@Parameters" />
+            </ChildContent>
+            <ErrorContent>
+                <p class="errorUI">Component crashed.</p>
+            </ErrorContent>
+        </ErrorBoundary>
     </piral-component>
 }
 

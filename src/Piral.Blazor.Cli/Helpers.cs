@@ -56,10 +56,18 @@ static class Helpers
             .FirstOrDefault();
     }
 
+    public static string? GetLicense(this Project project)
+    {
+        return project.PropertyGroups
+            .Select(group => group.GetElement("PackageLicenseExpression")?.Value)
+            .Where(m => m is not null)
+            .FirstOrDefault();
+    }
+
     public static string? GetVersion(this Project project)
     {
         return project.PropertyGroups
-            .Select(group => group.GetElement("Version")?.Value ?? group.GetElement("VersionPrefix")?.Value)
+            .Select(group => group.GetElement("PackageVersion")?.Value ?? group.GetElement("Version")?.Value ?? group.GetElement("VersionPrefix")?.Value)
             .Where(m => m is not null)
             .FirstOrDefault();
     }
@@ -67,7 +75,7 @@ static class Helpers
     public static string? GetName(this Project project)
     {
         return project.PropertyGroups
-            .Select(group => group.GetElement("AssemblyName")?.Value ?? group.GetElement("AssemblyTitle")?.Value)
+            .Select(group =>group.GetElement("PackageId")?.Value ?? group.GetElement("AssemblyName")?.Value ?? group.GetElement("AssemblyTitle")?.Value)
             .Where(m => m is not null)
             .FirstOrDefault();
     }

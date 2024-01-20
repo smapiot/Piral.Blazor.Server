@@ -17,6 +17,9 @@ install-package Piral.Blazor.Orchestrator
 With the package installed you'll need to configure your project to actually use `Piral.Blazor.Orchestrator`.
 
 ```cs
+// Important - an `HttpClient` needs to be present for the MfDiscoveryLoaderService - for
+// other services it might not be needed; so you can regard this as optional
+builder.Services.AddHttpClient();
 // Add DI services
 builder.Services.AddMicrofrontends<MfDiscoveryLoaderService>();
 
@@ -48,8 +51,8 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAntiforgery();
 app.UseRouting();
+app.UseAntiforgery();
 app.UseMicrofrontends();
 
 app.MapRazorComponents<App>()

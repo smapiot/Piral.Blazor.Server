@@ -1,5 +1,6 @@
 using CommandLine;
 using NuGet.Packaging;
+using NuGet.Packaging.Licenses;
 using NuGet.Versioning;
 using VsTools.Projects;
 
@@ -44,7 +45,8 @@ public class CreateEmulatorOptions : ICommand
         var project = Project.Load(csproj);
         var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
         var projectVersion = project.GetVersion() ?? "1.0.0";
-        var projectAuthors = project.GetAuthor() ?? "tbd.";
+        var projectAuthors = project.GetAuthor() ?? "Piral";
+        var license = project.GetLicense() ?? "MIT";
         var name = Name ?? $"{projectName}.Emulator";
         var fn = Path.Combine(outDir, $"{name}.nupkg");
 
@@ -52,7 +54,10 @@ public class CreateEmulatorOptions : ICommand
         {
             Id = name,
             Version = new NuGetVersion(projectVersion),
-            Description = $"The emulator for the {projectName} application."
+            RequireLicenseAcceptance = false,
+            //Readme = "README.md",
+            Description = $"The emulator for the {projectName} application.",
+            LicenseMetadata = new LicenseMetadata(LicenseType.Expression, license, NuGetLicenseExpression.Parse(license), null, LicenseMetadata.EmptyVersion),
         };
 
         builder.Authors.Add(projectAuthors);

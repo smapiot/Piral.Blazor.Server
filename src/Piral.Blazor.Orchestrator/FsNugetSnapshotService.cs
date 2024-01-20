@@ -169,7 +169,7 @@ public class FsNugetSnapshotService : ISnapshotService
 
     private async Task ProcessJobs()
     {
-        while (_jobs.TryPeek(out var process))
+        while (_jobs.TryDequeue(out var process))
         {
             try
             {
