@@ -18,8 +18,14 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
         if (alc is not null && !_resolvers.ContainsKey(alc))
         {
             var piletServices = new ServiceCollection();
+            var assName = assembly.GetName();
             var ModuleType = FindEntryClass(assembly);
-            var pilet = new WrappedMfService(app);
+            var meta = new MfDetails
+            {
+                Name = assName.Name!,
+                Version = assName.Version!.ToString(),
+            };
+            var pilet = new WrappedMfService(app, meta);
 
             alc.Unloading += (context) =>
             {
@@ -85,9 +91,12 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
         }
     }
 
-    sealed class WrappedMfService(IMfAppService app) : IMfService
+    sealed class WrappedMfService(IMfAppService app, MfDetails meta) : IMfService
     {
         private readonly IMfAppService _app = app;
+        private readonly MfDetails _meta = meta;
+
+        public MfDetails Meta => _meta;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {

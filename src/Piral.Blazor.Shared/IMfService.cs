@@ -19,4 +19,9 @@ public interface IMfService
 	/// Removes the provided event listener.
 	/// </summary>
 	void RemoveEventListener<T>(string type, Action<T> handler);
+
+	/// <summary>
+	/// Gets the details for the current micro frontend.
+	/// </summary>
+	MfDetails Meta { get; }
 }

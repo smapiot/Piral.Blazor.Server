@@ -8,13 +8,15 @@ namespace Piral.Blazor.Orchestrator;
 internal class NugetMicrofrontendPackage : MicrofrontendPackage
 {
     private const string target = "net8.0";
-
+    private readonly ICacheManipulatorService _cacheManipulator;
     private readonly Dictionary<string, PackageArchiveReader> _packages;
     private readonly AssemblyLoadContext _context;
+    private Assembly? _assembly;
 
-    public NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events)
+    public NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
         : base(name, version, container, events)
     {
+        _cacheManipulator = cacheManipulator;
         _packages = packages.ToDictionary(m => m.NuspecReader.GetId());
         _context = new AssemblyLoadContext($"{name}@{version}", true);
         _context.Resolving += LoadMissingAssembly;
@@ -26,13 +28,15 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
 
         if (msStream is not null)
         {
-            return _context.LoadFromStream(msStream);
+            var assembly = _context.LoadFromStream(msStream);
+            _cacheManipulator.UpdateComponentCache(assembly);
+            return assembly;
         }
 
         return null;
     }
 
-    private Stream? GetFile(PackageArchiveReader package, string path)
+    private static Stream? GetFile(PackageArchiveReader package, string path)
     {
         try
         {
@@ -86,7 +90,7 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
 
     protected override string GetCssName() => $"{Name}.bundle.scp.css";
 
-    protected override Assembly? GetAssembly() => LoadAssembly(_packages[Name], $"lib/{target}/{Name}.dll");
+    protected override Assembly? GetAssembly() => _assembly ??= LoadAssembly(_packages[Name], $"lib/{target}/{Name}.dll");
 
     public override void Dispose() => _context.Unload();
 

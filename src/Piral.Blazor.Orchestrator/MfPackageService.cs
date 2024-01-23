@@ -2,16 +2,17 @@
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class MfPackageService(IModuleContainerService container, ISnapshotService snapshot, IEvents events) : IMfPackageService
+internal class MfPackageService(IModuleContainerService container, ISnapshotService snapshot, IEvents events, ICacheManipulatorService cacheManipulator) : IMfPackageService
 {
     private readonly IModuleContainerService _container = container;
     private readonly ISnapshotService _snapshot = snapshot;
     private readonly IEvents _events = events;
+    private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
 
     public async Task<MicrofrontendPackage> LoadMicrofrontend(string name, string version)
     {
         var packages = await CollectPackages(name, version);
-        return new NugetMicrofrontendPackage(name, version, packages, _container, _events);
+        return new NugetMicrofrontendPackage(name, version, packages, _container, _events, _cacheManipulator);
     }
 
     private async Task<List<PackageArchiveReader>> CollectPackages(string name, string version)

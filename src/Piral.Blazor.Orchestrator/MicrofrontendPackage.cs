@@ -13,6 +13,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     private IMfModule? _module;
     private bool _disabled = false;
 
+    public IMfAppService Service => _app;
+
     public string Name => _app.Name;
 
     public string Version => _app.Version;
@@ -96,6 +98,9 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     sealed class RelatedMfAppService(string name, string version, IEvents events) : IMfAppService
     {
         private readonly IEvents _events = events;
+        private readonly MfDetails _meta = new () { Name = name, Version = version };
+
+        public MfDetails Meta => _meta;
 
         public Dictionary<string, List<Type>> Components { get; } = [];
 
