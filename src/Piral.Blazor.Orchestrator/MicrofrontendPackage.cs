@@ -4,14 +4,16 @@ using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events) : IDisposable
+public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator) : IDisposable
 {
     private readonly RelatedMfAppService _app = new(name, version, events);
     private readonly IModuleContainerService _container = container;
+    private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
     public event EventHandler? PackageChanged;
 
     private IMfModule? _module;
     private bool _disabled = false;
+    private Assembly? _assembly;
 
     public IMfAppService Service => _app;
 
@@ -44,7 +46,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     public IEnumerable<(string Name, Type Type)> Components => _app.Components.SelectMany(m => m.Value.Select(type => (m.Key, type)));
 
     public IEnumerable<string> Dependencies =>
-        GetAssembly()?.
+        _assembly?.
         GetReferencedAssemblies().
         Select(m => m.Name ?? "").
         Where(m => !string.IsNullOrEmpty(m)) ?? [];
@@ -65,7 +67,9 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
         if (assembly is not null)
         {
+            _assembly = assembly;
             _module = await _container.ConfigureModule(assembly, _app);
+            _cacheManipulator.UpdateComponentCache(assembly);
         }
 
         _app.PrependStyleSheet(GetCssName());

@@ -6,11 +6,9 @@ namespace Piral.Blazor.Orchestrator;
 
 internal class LocalMicrofrontendPackage : MicrofrontendPackage
 {
-    private readonly ICacheManipulatorService _cacheManipulator;
     private readonly Assembly _assembly;
     private readonly AssemblyLoadContext _context;
     private readonly List<string> _contentRoots = [];
-    private Assembly? _shadowAssembly;
 
     public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
         : this(assembly, assembly.GetName(), container, events, cacheManipulator)
@@ -18,9 +16,8 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
     }
 
     private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
-        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events)
+        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, cacheManipulator)
     {
-        _cacheManipulator = cacheManipulator;
         _assembly = assembly;
         _context = new AssemblyLoadContext($"local_package", true);
         _context.Resolving += LoadMissingAssembly;
@@ -40,14 +37,7 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
         _contentRoots.AddRange(assets?.ContentRoots ?? Enumerable.Empty<string>());
     }
 
-    private Assembly LoadShadow()
-    {
-        var shadow = _context.LoadFromAssemblyPath(_assembly.Location);
-        _cacheManipulator.UpdateComponentCache(shadow);
-        return shadow;
-    }
-
-    protected override Assembly? GetAssembly() => _shadowAssembly ??= LoadShadow();
+    protected override Assembly? GetAssembly() => _context.LoadFromAssemblyPath(_assembly.Location);
 
     public override Stream? GetFile(string path)
     {

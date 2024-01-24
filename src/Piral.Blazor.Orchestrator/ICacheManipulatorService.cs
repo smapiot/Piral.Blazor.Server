@@ -2,7 +2,7 @@
 
 namespace Piral.Blazor.Orchestrator;
 
-internal interface ICacheManipulatorService
+public interface ICacheManipulatorService
 {
     void UpdateComponentCache(Assembly assembly);
 }
