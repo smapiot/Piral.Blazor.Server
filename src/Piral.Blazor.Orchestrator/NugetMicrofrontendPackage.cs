@@ -5,19 +5,10 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class NugetMicrofrontendPackage : MicrofrontendPackage
+internal class NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : MicrofrontendPackage(name, version, container, events, data, cacheManipulator)
 {
     private const string target = "net8.0";
-    private readonly Dictionary<string, PackageArchiveReader> _packages;
-    private readonly AssemblyLoadContext _context;
-
-    public NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
-        : base(name, version, container, events, data, cacheManipulator)
-    {
-        _packages = packages.ToDictionary(m => m.NuspecReader.GetId());
-        _context = new AssemblyLoadContext($"{name}@{version}", true);
-        _context.Resolving += LoadMissingAssembly;
-    }
+    private readonly Dictionary<string, PackageArchiveReader> _packages = packages.ToDictionary(m => m.NuspecReader.GetId());
 
     private Assembly? LoadAssembly(PackageArchiveReader package, string path)
     {
@@ -25,7 +16,7 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
 
         if (msStream is not null)
         {
-            return _context.LoadFromStream(msStream);
+            return Context.LoadFromStream(msStream);
         }
 
         return null;
@@ -54,7 +45,7 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
         return null;
     }
 
-    private Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
+    protected override Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
     {
         var dll = $"{assemblyName.Name}.dll";
 
@@ -86,8 +77,6 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
     protected override string GetCssName() => $"{Name}.bundle.scp.css";
 
     protected override Assembly? GetAssembly() => LoadAssembly(_packages[Name], $"lib/{target}/{Name}.dll");
-
-    public override void Dispose() => _context.Unload();
 
     public override Stream? GetFile(string path)
     {

@@ -7,7 +7,6 @@ namespace Piral.Blazor.Orchestrator;
 internal class LocalMicrofrontendPackage : MicrofrontendPackage
 {
     private readonly Assembly _assembly;
-    private readonly AssemblyLoadContext _context;
     private readonly List<string> _contentRoots = [];
 
     public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
@@ -19,11 +18,9 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
         : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, data, cacheManipulator)
     {
         _assembly = assembly;
-        _context = new AssemblyLoadContext($"local_package", true);
-        _context.Resolving += LoadMissingAssembly;
     }
 
-    private Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
+    protected override Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
     {
         //TODO
         return null;
@@ -37,7 +34,7 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
         _contentRoots.AddRange(assets?.ContentRoots ?? Enumerable.Empty<string>());
     }
 
-    protected override Assembly? GetAssembly() => _context.LoadFromAssemblyPath(_assembly.Location);
+    protected override Assembly? GetAssembly() => Context.LoadFromAssemblyPath(_assembly.Location);
 
     public override Stream? GetFile(string path)
     {

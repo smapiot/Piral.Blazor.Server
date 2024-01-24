@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Piral.Blazor.Shared;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -9,6 +10,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     private readonly RelatedMfAppService _app = new(name, version, events, data);
     private readonly IModuleContainerService _container = container;
     private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
+    private readonly AssemblyLoadContext _context = new ($"{name}@{version}", true);
     public event EventHandler? PackageChanged;
 
     private IMfModule? _module;
@@ -37,6 +39,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         }
     }
 
+    public AssemblyLoadContext Context => _context;
+
     public IEnumerable<string> Scripts => _app.Scripts;
 
     public IEnumerable<string> Styles => _app.Styles;
@@ -63,6 +67,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
     public async Task Init()
     {
+        _context.Resolving += LoadMissingAssembly;
+
         var assembly = GetAssembly();
 
         if (assembly is not null)
@@ -75,6 +81,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         _app.PrependStyleSheet(GetCssName());
         await OnInitialized();
     }
+
+    protected abstract Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName);
 
     protected virtual Task OnInitialized() => Task.CompletedTask;
 
@@ -92,10 +100,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         _app.Reset();
     }
 
-    public virtual void Dispose()
-    {
-        // Empty on purpose
-    }
+    public virtual void Dispose() => Context.Unload();
 
     public abstract Stream? GetFile(string path);
 

@@ -11,6 +11,7 @@ public static class Emulator
     {
         var assembly = Assembly.GetEntryAssembly()!;
         var path = FindPath(assembly);
+        var others = FindOtherModules(assembly.Location);
         var dir = Path.GetDirectoryName(path)!;
         var fn = Path.GetFileNameWithoutExtension(path)!;
 
@@ -19,6 +20,7 @@ public static class Emulator
 
         Environment.SetEnvironmentVariable("ASPNETCORE_APPLICATIONNAME", fn);
         Environment.SetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY", assembly.FullName);
+        Environment.SetEnvironmentVariable("PIRAL_BLAZOR_ALL_DEBUG_ASSEMBLIES", string.Join(",", others));
 
         Environment.CurrentDirectory = dir;
 
@@ -35,6 +37,15 @@ public static class Emulator
         method.Invoke(null, new[] { args });
     }
 
+    private static string[] FindOtherModules(string root)
+    {
+        var dir = Path.GetDirectoryName(root);
+        var files = Directory.GetFiles(dir);
+        return files
+            .Where(path => IsExecutableLib(files, path))
+            .ToArray();
+    }
+
     private static string FindPath(Assembly assembly)
     {
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -45,17 +56,7 @@ public static class Emulator
         {
             var files = Directory.GetFiles(path);
             // looking for a .exe file (Windows) or the same file without the extension (Linux or MacOS)
-            var dll = files.FirstOrDefault(path =>
-            {
-                if (Path.GetExtension(path) == ".dll")
-                {
-                    var linuxApp = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
-                    var windowsExe = Path.ChangeExtension(path, ".exe");
-                    return files.Contains(windowsExe) || files.Contains(linuxApp);
-                }
-
-                return false;
-            });
+            var dll = files.FirstOrDefault(path => IsExecutableLib(files, path));
 
             if (dll is not null)
             {
@@ -64,5 +65,17 @@ public static class Emulator
         }
         
         throw new InvalidOperationException("Missing a valid <AppShell> property leading to an app shell emulator NuGet package.");
+    }
+
+    private static bool IsExecutableLib(string[] files, string path)
+    {
+        if (Path.GetExtension(path) == ".dll")
+        {
+            var linuxApp = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
+            var windowsExe = Path.ChangeExtension(path, ".exe");
+            return files.Contains(windowsExe) || files.Contains(linuxApp);
+        }
+
+        return false;
     }
 }

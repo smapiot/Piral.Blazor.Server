@@ -20,7 +20,19 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)
     {
         var ass = Assembly.GetEntryAssembly()!;
-        var mf = new LocalMicrofrontendPackage(ass, _container, _events, _data, _cacheManipulator);
-        await _repository.SetPackage(mf);
+        var all = (Environment.GetEnvironmentVariable("PIRAL_BLAZOR_ALL_DEBUG_ASSEMBLIES") ?? "").Split(',');
+
+        // set primary
+        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, _container, _events, _data, _cacheManipulator));
+
+        foreach (var path in all)
+        {
+            if (path != ass.Location)
+            {
+                // set other
+                var other = Assembly.LoadFrom(path);
+                await _repository.SetPackage(new LocalMicrofrontendPackage(other, _container, _events, _data, _cacheManipulator));
+            }
+        }
     }
 }
