@@ -5,11 +5,10 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : IDisposable
+public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, IData data) : IDisposable
 {
     private readonly RelatedMfAppService _app = new(name, version, events, data);
     private readonly IModuleContainerService _container = container;
-    private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
     private readonly AssemblyLoadContext _context = new ($"{name}@{version}", true);
     public event EventHandler? PackageChanged;
 
@@ -75,7 +74,6 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         {
             _assembly = assembly;
             _module = await _container.ConfigureModule(assembly, _app);
-            _cacheManipulator.UpdateComponentCache(assembly);
         }
 
         _app.PrependStyleSheet(GetCssName());

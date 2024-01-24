@@ -5,7 +5,7 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : MicrofrontendPackage(name, version, container, events, data, cacheManipulator)
+internal class NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data) : MicrofrontendPackage(name, version, container, events, data)
 {
     private const string target = "net8.0";
     private readonly Dictionary<string, PackageArchiveReader> _packages = packages.ToDictionary(m => m.NuspecReader.GetId());

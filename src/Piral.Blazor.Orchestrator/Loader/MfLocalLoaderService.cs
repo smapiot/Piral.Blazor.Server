@@ -2,7 +2,7 @@
 
 namespace Piral.Blazor.Orchestrator.Loader;
 
-internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : IMfLoaderService
+internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IModuleContainerService container, IEvents events, IData data) : IMfLoaderService
     where T : class, IMfLoaderService
 {
     private readonly T _originalLoader = originalLoader;
@@ -10,7 +10,6 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
     private readonly IModuleContainerService _container = container;
     private readonly IEvents _events = events;
     private readonly IData _data = data;
-    private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
 
     public void ConnectMicrofrontends(CancellationToken cancellationToken)
     {
@@ -23,7 +22,7 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
         var all = (Environment.GetEnvironmentVariable("PIRAL_BLAZOR_ALL_DEBUG_ASSEMBLIES") ?? "").Split(',');
 
         // set primary
-        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, _container, _events, _data, _cacheManipulator));
+        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, _container, _events, _data));
 
         foreach (var path in all)
         {
@@ -31,7 +30,7 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
             {
                 // set other
                 var other = Assembly.LoadFrom(path);
-                await _repository.SetPackage(new LocalMicrofrontendPackage(other, _container, _events, _data, _cacheManipulator));
+                await _repository.SetPackage(new LocalMicrofrontendPackage(other, _container, _events, _data));
             }
         }
     }

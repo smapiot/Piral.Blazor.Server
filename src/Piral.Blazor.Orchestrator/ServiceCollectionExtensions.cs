@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Piral.Blazor.Orchestrator.Connector;
 using Piral.Blazor.Orchestrator.Loader;
@@ -16,6 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IModuleContainerService, ModuleContainerService>();
         services.AddSingleton<ICacheManipulatorService, CacheManipulatorService>();
         services.AddSingleton<IMfRepository, MfRepository>();
+        services.AddSingleton<IComponentActivator, MfComponentActivator>();
         services.AddSingleton<INugetService, NugetService>();
         services.AddSingleton<IMfPackageService, MfPackageService>();
         services.AddSingleton<IEvents, GlobalEvents>();

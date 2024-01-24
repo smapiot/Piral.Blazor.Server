@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-
-namespace Piral.Blazor.Orchestrator;
+﻿namespace Piral.Blazor.Orchestrator;
 
 public interface ICacheManipulatorService
 {
-    void UpdateComponentCache(Assembly assembly);
+    void UpdateComponentCache(Type componentType, IScopeResolver resolver);
 }

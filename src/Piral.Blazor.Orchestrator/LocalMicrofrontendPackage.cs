@@ -9,13 +9,13 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
     private readonly Assembly _assembly;
     private readonly List<string> _contentRoots = [];
 
-    public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
-        : this(assembly, assembly.GetName(), container, events, data, cacheManipulator)
+    public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, IData data)
+        : this(assembly, assembly.GetName(), container, events, data)
     {
     }
 
-    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
-        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, data, cacheManipulator)
+    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, IData data)
+        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, data)
     {
         _assembly = assembly;
     }

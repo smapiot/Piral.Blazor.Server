@@ -9,38 +9,34 @@ internal class CacheManipulatorService : ICacheManipulatorService
     private readonly Type _ctiType;
     private readonly Func<Type, Action<IServiceProvider, IComponent>> _createInitializer;
     private readonly FieldInfo _field;
-    private readonly IModuleContainerService _container;
+    private readonly MethodInfo _tryGetValue;
+    private readonly MethodInfo _tryRemove;
+    private readonly MethodInfo _tryAdd;
 
-    public CacheManipulatorService(IModuleContainerService container)
+    public CacheManipulatorService()
     {
         var cf = typeof(Renderer).Assembly.GetType("Microsoft.AspNetCore.Components.ComponentFactory")!;
         _field = cf.GetField("_cachedComponentTypeInfo", BindingFlags.Static | BindingFlags.NonPublic)!;
         _ctiType = cf.GetNestedType("ComponentTypeInfoCacheEntry", BindingFlags.NonPublic)!;
         _createInitializer = cf.GetMethod("CreatePropertyInjector", BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Func<Type, Action<IServiceProvider, IComponent>>>();
-        _container = container;
+        _tryGetValue = _field.FieldType.GetMethod("TryGetValue")!;
+        _tryRemove = _field.FieldType.GetMethods().Where(m => m.Name == "TryRemove").First()!;
+        _tryAdd = _field.FieldType.GetMethod("TryAdd")!;
     }
 
-    public void UpdateComponentCache(Assembly assembly)
+    public void UpdateComponentCache(Type componentType, IScopeResolver resolver)
     {
-        var resolver = _container.GetProvider(assembly)!;
-
-        if (resolver is not null)
+        var original = _field.GetValue(null)!;
+        var initializer = _createInitializer(componentType);
+        Action<IServiceProvider, IComponent> propInjection = (scope, cmp) =>
         {
-            var components = assembly!.GetExportedTypes().Where(m => typeof(IComponent).IsAssignableFrom(m));
-            var original = _field.GetValue(null)!;
-
-            foreach (var componentType in components)
-            {
-                var initializer = _createInitializer(componentType);
-                Action<IServiceProvider, IComponent> propInjection = (scope, cmp) =>
-                {
-                    var provider = resolver.Resolve(scope);
-                    initializer(provider, cmp);
-                };
-                var entry = Activator.CreateInstance(_ctiType, null, propInjection)!;
-                object?[] parameters = [componentType, entry];
-                original.GetType().GetMethod("TryAdd")!.Invoke(original, parameters);
-            }
-        }
+            var provider = resolver.Resolve(scope);
+            initializer(provider, cmp);
+        };
+        object?[] parameters = [componentType, null];
+        _tryGetValue.Invoke(original, parameters);
+        _tryRemove.Invoke(original, parameters);
+        parameters[1] = Activator.CreateInstance(_ctiType, null, propInjection)!;
+        _tryAdd.Invoke(original, parameters);
     }
 }
