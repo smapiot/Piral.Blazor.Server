@@ -1,9 +1,10 @@
 ﻿@inject IMfComponentService mfs
 @implements IDisposable
 
+<piral-slot name="@Name">
 @foreach (var (pilet, component) in components)
 {
-    <piral-component name="@Name" origin="@pilet">
+    <piral-component origin="@pilet">
         <ErrorBoundary>
             <ChildContent>
                 <DynamicComponent Type="@component" Parameters="@Parameters" />
@@ -14,6 +15,7 @@
         </ErrorBoundary>
     </piral-component>
 }
+</piral-slot>
 
 @code {
     private IEnumerable<(string, Type)> components = Enumerable.Empty<(string, Type)>();
@@ -28,7 +30,26 @@
     /// The additional parameters to forward to the extensions.
     /// </summary>
     [Parameter]
-    public IDictionary<string, object>? Parameters { get; set; }
+    public IDictionary<string, object?>? Parameters { get; set; }
+
+    private IDictionary<string, object?>? ActualParameters => Parameters ?? providedParameters;
+
+    private IDictionary<string, object?> providedParameters = new Dictionary<string, object?>();
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        providedParameters.Clear();
+
+        foreach (var kvp in parameters.ToDictionary())
+        {
+            if (kvp.Key != nameof(Name) && kvp.Key != nameof(Parameters))
+            {
+                providedParameters.Add(kvp);   
+            }
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
 
     protected override void OnParametersSet()
     {

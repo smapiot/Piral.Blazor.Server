@@ -1,6 +1,6 @@
 ﻿typeof Blazor === "undefined" &&
   (function () {
-    const blazorServer = "_framework/blazor.server.js";
+    const blazorServer = "_framework/blazor.web.js";
     const loaded = [];
     const loading = [blazorServer];
 
@@ -42,9 +42,15 @@
       }
     }
 
+    class PiralSlot extends HTMLElement {
+        get name() {
+            return this.getAttribute("name");
+        }
+    }
+
     class PiralComponent extends HTMLElement {
       get name() {
-        return this.getAttribute("name");
+        return this.parentElement.name;
       }
 
       get origin() {
@@ -68,6 +74,7 @@
     }
 
     customElements.define("blazor-script", BlazorScript);
+    customElements.define("piral-slot", PiralSlot);
     customElements.define("piral-component", PiralComponent);
 
     defer(() => {

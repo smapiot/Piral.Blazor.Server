@@ -120,12 +120,11 @@ Finally, remove the reference to any Blazor script, i.e., transform your `App.ra
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="TractorStore.styles.css" />
     <HeadOutlet />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
 </body>
 </html>
 ```

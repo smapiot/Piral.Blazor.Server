@@ -3,6 +3,6 @@ blazor-script {
   visibility: collapse;
 }
 
-piral-component {
+piral-component, piral-slot {
   display: contents;
 }

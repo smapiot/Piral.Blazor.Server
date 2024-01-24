@@ -129,11 +129,17 @@ where
 ```cs
 private Dictionary<string, object> parameters = new Dictionary<string, object>
 {
-    { "foo", 5 }
+  { "Foo", 5 }
 };
 ```
 
 The `MfComponent` component is available in the `Piral.Blazor.Shared` NuGet package. It can be used in the server / app shell or in any micro frontend.
+
+Alternatively, you can also specify parameters directly, e.g., for the previous example you could also write:
+
+```razor
+<MfComponent Name="mfa-component" Foo="5" />
+```
 
 ## License
 
