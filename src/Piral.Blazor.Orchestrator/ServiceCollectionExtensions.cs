@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<INugetService, NugetService>();
         services.AddSingleton<IMfPackageService, MfPackageService>();
         services.AddSingleton<IEvents, GlobalEvents>();
+        services.AddSingleton<IData, GlobalData>();
 
         if (isEmulator)
         {

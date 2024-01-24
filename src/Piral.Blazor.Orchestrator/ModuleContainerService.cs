@@ -112,5 +112,15 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
         {
             _app.RemoveEventListener(type, handler);
         }
+
+        public bool TryGetData<T>(string name, out T value)
+        {
+            return _app.TryGetData(name, out value);
+        }
+
+        public bool TrySetData<T>(string name, T value)
+        {
+            return _app.TrySetData(name, value);
+        }
     }
 }

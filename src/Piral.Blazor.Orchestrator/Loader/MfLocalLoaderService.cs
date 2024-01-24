@@ -2,13 +2,14 @@
 
 namespace Piral.Blazor.Orchestrator.Loader;
 
-internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator) : IMfLoaderService
+internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : IMfLoaderService
     where T : class, IMfLoaderService
 {
     private readonly T _originalLoader = originalLoader;
     private readonly IMfRepository _repository = repository;
     private readonly IModuleContainerService _container = container;
     private readonly IEvents _events = events;
+    private readonly IData _data = data;
     private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
 
     public void ConnectMicrofrontends(CancellationToken cancellationToken)
@@ -19,7 +20,7 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)
     {
         var ass = Assembly.GetEntryAssembly()!;
-        var mf = new LocalMicrofrontendPackage(ass, _container, _events, _cacheManipulator);
+        var mf = new LocalMicrofrontendPackage(ass, _container, _events, _data, _cacheManipulator);
         await _repository.SetPackage(mf);
     }
 }

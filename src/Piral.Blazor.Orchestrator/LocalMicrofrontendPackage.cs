@@ -10,13 +10,13 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
     private readonly AssemblyLoadContext _context;
     private readonly List<string> _contentRoots = [];
 
-    public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
-        : this(assembly, assembly.GetName(), container, events, cacheManipulator)
+    public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
+        : this(assembly, assembly.GetName(), container, events, data, cacheManipulator)
     {
     }
 
-    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
-        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, cacheManipulator)
+    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
+        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, data, cacheManipulator)
     {
         _assembly = assembly;
         _context = new AssemblyLoadContext($"local_package", true);

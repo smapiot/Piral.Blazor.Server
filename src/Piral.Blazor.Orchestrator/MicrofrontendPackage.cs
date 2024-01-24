@@ -4,9 +4,9 @@ using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator) : IDisposable
+public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator) : IDisposable
 {
-    private readonly RelatedMfAppService _app = new(name, version, events);
+    private readonly RelatedMfAppService _app = new(name, version, events, data);
     private readonly IModuleContainerService _container = container;
     private readonly ICacheManipulatorService _cacheManipulator = cacheManipulator;
     public event EventHandler? PackageChanged;
@@ -99,9 +99,10 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
     public abstract Stream? GetFile(string path);
 
-    sealed class RelatedMfAppService(string name, string version, IEvents events) : IMfAppService
+    sealed class RelatedMfAppService(string name, string version, IEvents events, IData data) : IMfAppService
     {
         private readonly IEvents _events = events;
+        private readonly IData _data = data;
         private readonly MfDetails _meta = new () { Name = name, Version = version };
 
         public MfDetails Meta => _meta;
@@ -139,6 +140,16 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         public void RemoveEventListener<T>(string type, Action<T> handler)
         {
             _events.RemoveEventListener(type, handler);
+        }
+
+        public bool TrySetData<T>(string key, T value)
+        {
+            return _data.TrySetData(Name, key, value);
+        }
+
+        public bool TryGetData<T>(string key, out T value)
+        {
+            return _data.TryGetData(Name, key, out value);
         }
 
         public void Reset()

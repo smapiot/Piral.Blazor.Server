@@ -32,29 +32,12 @@
     [Parameter]
     public IDictionary<string, object?>? Parameters { get; set; }
 
-    private IDictionary<string, object?>? ActualParameters => Parameters ?? providedParameters;
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object?>? RemainingParameters { get; set; }
 
-    private IDictionary<string, object?> providedParameters = new Dictionary<string, object?>();
+    private IDictionary<string, object?>? ActualParameters => Parameters ?? RemainingParameters;
 
-    public override Task SetParametersAsync(ParameterView parameters)
-    {
-        providedParameters.Clear();
-
-        foreach (var kvp in parameters.ToDictionary())
-        {
-            if (kvp.Key != nameof(Name) && kvp.Key != nameof(Parameters))
-            {
-                providedParameters.Add(kvp);   
-            }
-        }
-
-        return base.SetParametersAsync(parameters);
-    }
-
-    protected override void OnParametersSet()
-    {
-        UpdateComponent();
-    }
+    protected override void OnParametersSet() => UpdateComponent();
 
     protected override void OnInitialized()
     {
@@ -66,10 +49,7 @@
         mfs.ComponentsChanged -= NotifyComponentsChanged;
     }
 
-    private void NotifyComponentsChanged(object? sender, EventArgs e)
-    {
-        InvokeAsync(UpdateComponent);
-    }
+    private void NotifyComponentsChanged(object? sender, EventArgs e) => InvokeAsync(UpdateComponent);
 
     private void UpdateComponent()
     {

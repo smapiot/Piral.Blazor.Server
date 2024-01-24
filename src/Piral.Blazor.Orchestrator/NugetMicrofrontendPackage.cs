@@ -11,8 +11,8 @@ internal class NugetMicrofrontendPackage : MicrofrontendPackage
     private readonly Dictionary<string, PackageArchiveReader> _packages;
     private readonly AssemblyLoadContext _context;
 
-    public NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, ICacheManipulatorService cacheManipulator)
-        : base(name, version, container, events, cacheManipulator)
+    public NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data, ICacheManipulatorService cacheManipulator)
+        : base(name, version, container, events, data, cacheManipulator)
     {
         _packages = packages.ToDictionary(m => m.NuspecReader.GetId());
         _context = new AssemblyLoadContext($"{name}@{version}", true);

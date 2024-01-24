@@ -26,6 +26,7 @@ public class CreateEmulatorOptions : ICommand
     public Task Run()
     {
         var srcDir = Path.Combine(Environment.CurrentDirectory, Source ?? "");
+        var csproj = srcDir.GetProjectFile() ?? throw new InvalidOperationException($"No csproj file found in '{srcDir}'.");
         var buildDirRoot = Path.Combine(srcDir, "bin", "Release");
         var buildDir = Path.Combine(buildDirRoot, "net8.0", "publish");
         var outDir = Path.Combine(Environment.CurrentDirectory, Output ?? buildDirRoot);
@@ -34,14 +35,13 @@ public class CreateEmulatorOptions : ICommand
 
         outDir.CreateDirectoryIfNotExists();
 
-        CreateNuGetPackage(srcDir, buildDir, outDir);
+        CreateNuGetPackage(csproj, buildDir, outDir);
 
         return Task.CompletedTask;
     }
 
-    private void CreateNuGetPackage(string srcDir, string buildDir, string outDir)
+    private void CreateNuGetPackage(string csproj, string buildDir, string outDir)
     {
-        var csproj = srcDir.GetProjectFile();
         var project = Project.Load(csproj);
         var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
         var projectVersion = project.GetVersion() ?? "1.0.0";
