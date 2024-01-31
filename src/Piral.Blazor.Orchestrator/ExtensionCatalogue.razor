@@ -1,0 +1,61 @@
+@page "/$debug-extension-catalogue"
+
+@inject NavigationManager navManager
+
+@using Piral.Blazor.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+<MfComponent Name="@Name" Parameters="@Parameters" />
+
+@code {
+    public string? Name { get; set; }
+
+    public Dictionary<string, object?>? Parameters { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var state = navManager.HistoryEntryState ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(state))
+        {
+            var obj = JsonSerializer.Deserialize<ExtensionCatalogueState>(state);
+
+            if (obj is not null)
+            {
+                Name = obj.Name;
+                Parameters = obj.Params?.ToDictionary(m => m.Key, m => ConvertValue(m.Value));
+            }
+        }
+
+        base.OnParametersSet();
+    }
+
+    private static object? ConvertValue(JsonElement? element)
+    {
+        if (element.HasValue)
+        {
+            switch (element.Value.ValueKind)
+            {
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.String:
+                    return element.Value.GetString();
+                case JsonValueKind.Number:
+                    return element.Value.GetDouble();
+            }
+        }
+
+        return null;
+    }
+
+    class ExtensionCatalogueState
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+        [JsonPropertyName("params")]
+        public Dictionary<string, JsonElement?>? Params { get; set; }
+    }
+}

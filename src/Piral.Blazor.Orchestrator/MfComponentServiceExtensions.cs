@@ -1,4 +1,5 @@
 using Piral.Blazor.Shared;
+using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -18,8 +19,29 @@ public static class MfComponentServiceExtensions
         }
     }
 
+    public static IEnumerable<Assembly> GetRouteAssemblies(this IEnumerable<MicrofrontendPackage> packages)
+    {
+        var otherAssemblies = packages.SelectMany(m => m.Components.Where(m => m.Name.StartsWith(ROUTE_PREFIX)).Select(m => m.Type.Assembly)).Distinct();
+        var isEmulator = Environment.GetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY") is not null;
+
+        if (isEmulator)
+        {
+            var currentAssembly = typeof(ExtensionCatalogue).Assembly;
+            return otherAssemblies.Concat(Enumerable.Repeat(currentAssembly, 1));
+        }
+
+        return otherAssemblies;
+    }
+
     public static IEnumerable<(string Route, string Microfrontend, Type Component)> GetAllRouteComponents(this IMfComponentService service)
     {
+        var isEmulator = Environment.GetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY") is not null;
+
+        if (isEmulator)
+        {
+            yield return ("/$debug-extension-catalogue", "root", typeof(ExtensionCatalogue));
+        }
+
         foreach (var name in service.ComponentNames)
         {
             if (name.StartsWith(ROUTE_PREFIX))

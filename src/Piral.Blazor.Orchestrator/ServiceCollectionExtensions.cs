@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Piral.Blazor.Orchestrator.Connector;
@@ -39,5 +41,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMfComponentService, MfComponentService>();
         services.AddHostedService<MfOrchestrationService>();
         return services;
+    }
+
+    public static RazorComponentsEndpointConventionBuilder MapMicrofrontends<TRootComponent>(this IEndpointRouteBuilder endpoints)
+    {
+        var builder = endpoints.MapRazorComponents<TRootComponent>();
+        var repository = endpoints.ServiceProvider.GetService<IMfRepository>() ?? throw new InvalidOperationException("You need to use 'AddMicrofrontends()' before you can 'MapMicrofrontends()'.");
+
+        repository.PackagesChanged += (_, _) =>
+        {
+            var assemblies = repository.Packages.GetRouteAssemblies();
+            builder.AddAdditionalAssemblies(assemblies.ToArray());
+        };
+
+        return builder.AddInteractiveServerRenderMode();
     }
 }

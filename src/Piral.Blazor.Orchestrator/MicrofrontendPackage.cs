@@ -56,7 +56,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
     public IEnumerable<Type> GetComponents(string name)
     {
-        if (_app.Components.TryGetValue(name, out var result))
+        if (name is not null && _app.Components.TryGetValue(name, out var result))
         {
             return result;
         }

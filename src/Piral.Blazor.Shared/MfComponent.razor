@@ -1,21 +1,24 @@
 ﻿@inject IMfComponentService mfs
 @implements IDisposable
 
-<piral-slot name="@Name">
-@foreach (var (pilet, component) in components)
+@if (!string.IsNullOrEmpty(Name))
 {
-    <piral-component origin="@pilet">
-        <ErrorBoundary>
-            <ChildContent>
-                <DynamicComponent Type="@component" Parameters="@ActualParameters" />
-            </ChildContent>
-            <ErrorContent>
-                <p class="errorUI">Component crashed.</p>
-            </ErrorContent>
-        </ErrorBoundary>
-    </piral-component>
+    <piral-slot name="@Name">
+        @foreach (var (pilet, component) in components)
+        {
+            <piral-component origin="@pilet">
+                <ErrorBoundary>
+                    <ChildContent>
+                        <DynamicComponent Type="@component" Parameters="@ActualParameters" />
+                    </ChildContent>
+                    <ErrorContent>
+                        <p class="errorUI">Component crashed.</p>
+                    </ErrorContent>
+                </ErrorBoundary>
+            </piral-component>
+        }
+    </piral-slot>
 }
-</piral-slot>
 
 @code {
     private IEnumerable<(string, Type)> components = Enumerable.Empty<(string, Type)>();
@@ -24,7 +27,8 @@
     /// The required name of the components to render.
     /// </summary>
     [Parameter]
-    public string Name { get; set; } = "";
+    [EditorRequired]
+    public string? Name { get; set; }
 
     /// <summary>
     /// The additional parameters to forward to the extensions.
@@ -53,7 +57,15 @@
 
     private void UpdateComponent()
     {
-        components = mfs.GetComponents(Name);
+        if (!string.IsNullOrEmpty(Name))
+        {
+            components = mfs.GetComponents(Name);
+        }
+        else
+        {
+            components = [];
+        }
+
         StateHasChanged();
     }
 }

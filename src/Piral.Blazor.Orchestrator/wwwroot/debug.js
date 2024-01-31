@@ -368,7 +368,14 @@ typeof Blazor === "undefined" &&
             case "emit-event":
               return fireEvent(content.name, content.args).then(refresh);
             case "goto-route":
-              return history.pushState(content.state, undefined, content.route);
+              if (location.pathname.endsWith(content.route)) {
+                Blazor.navigateTo('/');
+              }
+              return Blazor.navigateTo(content.route, {
+                historyEntryState: JSON.stringify(content.state),
+                forceLoad: false,
+                replaceHistoryEntry: false,
+              });
             case "visualize-all":
               return toggleVisualize();
           }
