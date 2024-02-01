@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,11 +48,18 @@ public static class ServiceCollectionExtensions
     {
         var builder = endpoints.MapRazorComponents<TRootComponent>();
         var repository = endpoints.ServiceProvider.GetService<IMfRepository>() ?? throw new InvalidOperationException("You need to use 'AddMicrofrontends()' before you can 'MapMicrofrontends()'.");
+        var addedAssemblies = new HashSet<Assembly>();
 
         repository.PackagesChanged += (_, _) =>
         {
-            var assemblies = repository.Packages.GetRouteAssemblies();
-            builder.AddAdditionalAssemblies(assemblies.ToArray());
+            var assemblies = repository.Packages.GetRouteAssemblies().Where(m => !addedAssemblies.Contains(m)).ToArray();
+            
+            foreach (var assembly in assemblies)
+            {
+                addedAssemblies.Add(assembly);
+            }
+
+            builder.AddAdditionalAssemblies(assemblies);
         };
 
         return builder.AddInteractiveServerRenderMode();
