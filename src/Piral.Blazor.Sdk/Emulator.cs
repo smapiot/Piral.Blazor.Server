@@ -39,7 +39,7 @@ public static class Emulator
 
     private static string[] FindOtherModules(string root)
     {
-        var dir = Path.GetDirectoryName(root);
+        var dir = Path.GetDirectoryName(root)!;
         var files = Directory.GetFiles(dir);
         return files
             .Where(path => IsExecutableLib(files, path))
@@ -49,7 +49,7 @@ public static class Emulator
     private static string FindPath(Assembly assembly)
     {
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name;
+        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name.ToLowerInvariant();
         var path = Path.Combine(userProfile, ".nuget", "packages", name);
 
         if (Directory.Exists(path))
