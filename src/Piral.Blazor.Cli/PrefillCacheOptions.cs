@@ -24,6 +24,9 @@ public class PrefillCacheOptions : ICommand
     [Option('s', "source", Required = false, HelpText = "The path to the source directory containing the 'appsettings.json' file. By default the current directory is used.")]
     public string? Source { get; set; }
 
+    [Option("environment", Required = false, HelpText = "The environment to use for specializing the 'appsettings.json' file. By default the value from the ASPNETCORE_ENVIRONMENT variable is used. Fallback is 'Development'.")]
+    public string? EnvironmentName { get; set; }
+
     [Option("secrets-id", Required = false, HelpText = "The user secrets id, if user secrets are used in the configuration.")]
     public string? SecretsId { get; set; }
 
@@ -31,13 +34,15 @@ public class PrefillCacheOptions : ICommand
     {
         var source = Path.Combine(Environment.CurrentDirectory, Source ?? "");
         var output = Path.Combine(Environment.CurrentDirectory, Output ?? ".cache");
+        var environment = EnvironmentName ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
         var secretsId = SecretsId;
         output.CreateDirectoryIfNotExists();
 
         var builder = new ConfigurationBuilder()
             .SetBasePath(source)
-            .AddEnvironmentVariables()
-            .AddJsonFile("appsettings.json");
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddEnvironmentVariables();
 
         if (secretsId is not null)
         {
