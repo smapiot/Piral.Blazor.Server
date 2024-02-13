@@ -1,6 +1,9 @@
 ﻿using CommandLine;
+using VsTools.Projects;
 
 namespace Piral.Blazor.Cli;
+
+using static Helpers;
 
 [Verb("publish-microfrontend", HelpText = "Publishes a micro frontend package to a micro frontend discovery service.")]
 public class PublishMicrofrontendOptions : ICommand
@@ -19,7 +22,19 @@ public class PublishMicrofrontendOptions : ICommand
 
     public Task Run()
     {
-        Console.WriteLine("Not yet implemented.");
+        var srcDir = Path.Combine(Environment.CurrentDirectory, Source ?? "");
+        var csproj = srcDir.GetProjectFile() ?? throw new InvalidOperationException($"No csproj file found in '{srcDir}'.");
+        var buildDirRoot = Path.Combine(srcDir, "bin", "Release");
+        var buildDir = Path.Combine(buildDirRoot, "net8.0");
+        var project = Project.Load(csproj);
+        var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
+        var file = $"{projectName}.nupkg";
+
+        RunCommand("dotnet", "build -c Release", srcDir);
+        RunCommand("dotnet", "pack", buildDir);
+
+        //TODO handle interactive case
+        RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDir);
 
         return Task.CompletedTask;
     }
