@@ -26,5 +26,6 @@ where `<command` is one of the following commands:
 
 - `create-emulator`
 - `prefill-cache`
+- `publish-microfrontend`
 
 The following sections go into details on these commands.

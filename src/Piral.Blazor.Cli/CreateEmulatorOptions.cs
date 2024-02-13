@@ -40,6 +40,57 @@ public class CreateEmulatorOptions : ICommand
         return Task.CompletedTask;
     }
 
+    private static string GetReadme(string name, string version, string description, string sdkVersion)
+    {
+        var initialCode = $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
+  <PropertyGroup>
+    <!-- ... as beforehand -->
+  </PropertyGroup>
+</Project>";
+        var finalCode = $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Version>0.1.0</Version>
+    <AppShell>{name}/{version}</AppShell>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include=""wwwroot\"" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""{name}"" Version=""{version}"" PrivateAssets=""all"" />
+  </ItemGroup>
+
+</Project>";
+        var moduleCode = $@"public class Module : IMfModule
+{{
+    public void Configure(IServiceCollection services)
+    {{
+        // register your services here
+    }}
+
+    public Task Setup(IMfAppService app)
+    {{
+        // wire up your components / events here
+        return Task.CompletedTask;
+    }}
+
+    public Task Teardown(IMfAppService app)
+    {{
+        // don't forget to destroy resources
+        return Task.CompletedTask;
+    }}
+}}";
+
+        return 
+            $"# {name}\n\n{description}\n\n## Usage\n\nCreate a new Razor Component Library (RCL). Change the csproj to use the SDK:\n\n" +
+            $"```xml\n{initialCode}\n```\n\nIndicate that you want to reference this version of the emulator:\n\n```xml\n{finalCode}\n```\n\n" +
+            $"Create a new class for the module. This class needs to implement the `IMfModule` interface.\n\n```cs{moduleCode}\n```\n\n" +
+            $"That's it! Now you can start coding following the concepts outlined for any micro frontend in the Piral.Blazor.Server world.";
+    }
+
     private void CreateNuGetPackage(string csproj, string buildDir, string outDir)
     {
         var project = Project.Load(csproj);
@@ -47,16 +98,20 @@ public class CreateEmulatorOptions : ICommand
         var projectVersion = project.GetVersion() ?? "1.0.0";
         var projectAuthors = project.GetAuthor() ?? "Piral";
         var license = project.GetLicense() ?? "MIT";
+        var sdkVersion = project.GetSdkVersion() ?? "0.4.0";
         var name = Name ?? $"{projectName}.Emulator";
+        var description = $"The emulator for the {projectName} application.";
         var fn = Path.Combine(outDir, $"{name}.nupkg");
+
+        File.WriteAllText(Path.Combine(buildDir, "README.md"), GetReadme(name, projectVersion, description, sdkVersion));
 
         var builder = new PackageBuilder
         {
             Id = name,
             Version = new NuGetVersion(projectVersion),
             RequireLicenseAcceptance = false,
-            //Readme = "README.md",
-            Description = $"The emulator for the {projectName} application.",
+            Readme = "README.md",
+            Description = description,
             LicenseMetadata = new LicenseMetadata(LicenseType.Expression, license, NuGetLicenseExpression.Parse(license), null, LicenseMetadata.EmptyVersion),
         };
 

@@ -64,6 +64,16 @@ static class Helpers
             .FirstOrDefault();
     }
 
+    public static string? GetSdkVersion(this Project project)
+    {
+        var packageReference = project.ItemGroups
+            .Select(group => group.GetChildElements()?.FirstOrDefault(m => m.ElementName == "PackageReference" && m.GetAttributeValue("Include") == "Piral.Blazor.Orchestrator"))
+            .Where(m => m is not null)
+            .FirstOrDefault();
+
+        return packageReference?.GetAttributeValue("Version");
+    }
+
     public static string? GetVersion(this Project project)
     {
         return project.PropertyGroups
