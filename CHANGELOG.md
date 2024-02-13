@@ -1,11 +1,14 @@
 # Piral.Blazor.Server Changelog
 
-## 0.4.0 (tbd)
+## 0.4.0 (February 14, 2024)
 
 - Updated to .NET 8
+- Updated documentation
 - Fixed issue with parallelized loading of micro frontends
 - Fixed issue when config section `Microfrontends:NugetFeeds` does not exist
 - Fixed issue with the snapshot service requiring write access in cache-only
+- Added `TryGetData` and `TrySetData` methods to `IMfService`
+- Added `Meta` property to `IMfService`
 - Added dotnet CLI tool `piral-blazor-server`
 
 ## 0.3.0 (November 15, 2023)
