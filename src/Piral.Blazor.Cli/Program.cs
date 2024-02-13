@@ -71,9 +71,10 @@ static int ShowError(IEnumerable<Error> errs)
     return 0;
 }
 
-Parser.Default.ParseArguments<CreateEmulatorOptions, PrefillCacheOptions>(args)
+Parser.Default.ParseArguments<CreateEmulatorOptions, PrefillCacheOptions, PublishMicrofrontendOptions>(args)
     .MapResult(
         (CreateEmulatorOptions opts) => Run(opts),
         (PrefillCacheOptions opts) => Run(opts),
+        (PublishMicrofrontendOptions opts) => Run(opts),
         ShowError
     );

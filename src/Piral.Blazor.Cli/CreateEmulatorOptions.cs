@@ -42,12 +42,24 @@ public class CreateEmulatorOptions : ICommand
 
     private static string GetReadme(string name, string version, string description, string sdkVersion)
     {
-        var initialCode = $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
+        var p = "\n\n";
+
+        string code(string lang, string block)
+        {
+           return $"```{lang}\n{block}\n```";
+        }
+
+        string link(string name, string target)
+        {
+           return $"[{name}]({target})";
+        }
+
+        var initialCode = code("xml", $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
   <PropertyGroup>
     <!-- ... as beforehand -->
   </PropertyGroup>
-</Project>";
-        var finalCode = $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
+</Project>");
+        var finalCode = code("xml", $@"<Project Sdk=""Piral.Blazor.Sdk/{sdkVersion}"">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -63,8 +75,8 @@ public class CreateEmulatorOptions : ICommand
     <PackageReference Include=""{name}"" Version=""{version}"" PrivateAssets=""all"" />
   </ItemGroup>
 
-</Project>";
-        var moduleCode = $@"public class Module : IMfModule
+</Project>");
+        var moduleCode = code("cs", $@"public class Module : IMfModule
 {{
     public void Configure(IServiceCollection services)
     {{
@@ -82,13 +94,20 @@ public class CreateEmulatorOptions : ICommand
         // don't forget to destroy resources
         return Task.CompletedTask;
     }}
-}}";
+}}");
+        var link1 = link("Piral", "https://piral.io");
+        var link2 = link("Piral for Blazor", "https://blazor.piral.io");
+        var link3 = link("Piral Cloud", "https://www.piral.cloud");
+        var link4 = link("Consulting and support for Piral", "https://www.smapiot.com");
 
         return 
-            $"# {name}\n\n{description}\n\n## Usage\n\nCreate a new Razor Component Library (RCL). Change the csproj to use the SDK:\n\n" +
-            $"```xml\n{initialCode}\n```\n\nIndicate that you want to reference this version of the emulator:\n\n```xml\n{finalCode}\n```\n\n" +
-            $"Create a new class for the module. This class needs to implement the `IMfModule` interface.\n\n```cs{moduleCode}\n```\n\n" +
-            $"That's it! Now you can start coding following the concepts outlined for any micro frontend in the Piral.Blazor.Server world.";
+            $"# {name}{p}{description}{p}" +
+            $"## Usage{p}Create a new Razor Component Library (RCL). Change the csproj to use the SDK:{p}{initialCode}{p}" +
+            $"Indicate that you want to reference this version of the emulator:{p}{finalCode}{p}" +
+            $"Create a new class for the module. This class needs to implement the `IMfModule` interface.{p}{moduleCode}{p}" +
+            $"That's it! Now you can start coding following the concepts outlined for any micro frontend in the `Piral.Blazor.Server` world.{p}" +
+            $"## More Documentation{p}You can find more information on the following websites:{p}" +
+            $"- {link1}\n- {link2}\n- {link3}\n- {link4}";
     }
 
     private void CreateNuGetPackage(string csproj, string buildDir, string outDir)
