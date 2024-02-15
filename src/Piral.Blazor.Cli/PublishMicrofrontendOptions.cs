@@ -34,7 +34,7 @@ public class PublishMicrofrontendOptions : ICommand
         RunCommand("dotnet", "pack", buildDir);
 
         //TODO handle interactive case
-        RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDir);
+        RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDirRoot);
 
         return Task.CompletedTask;
     }

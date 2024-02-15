@@ -4,6 +4,14 @@
 
 A dedicated and fully functional server-side composed micro frontend solution for Blazor.
 
+## Documentation Page
+
+We have a dedicated documentation page for all things related Blazor. In case you need more extensive information and a bit of background you should check this one out.
+
+👉 [blazor.piral.io](https://blazor.piral.io)
+
+👇 In this README you'll find the most important information to get started.
+
 ## Installation & Setup
 
 For using `Piral.Blazor.Orchestrator` you'll need an ASP.NET Core project using Blazor (server).
@@ -140,6 +148,12 @@ Alternatively, you can also specify parameters directly, e.g., for the previous 
 ```razor
 <MfComponent Name="mfa-component" Foo="5" />
 ```
+
+## A Practical Example
+
+A full example is online on GitHub:
+
+👨‍💻 [FlorianRappl/Piral.Blazor.Server.Samples.Tractor](https://github.com/FlorianRappl/Piral.Blazor.Server.Samples.Tractor)
 
 ## License
 

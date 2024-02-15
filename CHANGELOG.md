@@ -1,5 +1,10 @@
 # Piral.Blazor.Server Changelog
 
+## 0.4.1 (tbd)
+
+- Fixed issue with `piral-blazor-server publish-microfrontend` to take wrong path
+- Updated documentation
+
 ## 0.4.0 (February 14, 2024)
 
 - Updated to .NET 8
