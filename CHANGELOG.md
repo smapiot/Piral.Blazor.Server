@@ -3,7 +3,9 @@
 ## 0.4.1 (tbd)
 
 - Fixed issue with `piral-blazor-server publish-microfrontend` to take wrong path
+- Updated NuGet dependencies
 - Updated documentation
+- Added support for special fields (`Id`) in micro frontend discovery
 
 ## 0.4.0 (February 14, 2024)
 

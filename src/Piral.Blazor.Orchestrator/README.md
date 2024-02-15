@@ -145,9 +145,12 @@ By default, the micro frontend loader takes an empty feed of micro frontends. Th
   "AllowedHosts": "*",
   "Microfrontends": {
     "CacheDir": ".cache",
-    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/pilet/empty",
-    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/empty",
+    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/microfrontends/myfeed",
+    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/myfeed",
     "NugetFeeds": {
+      "Source": {
+        "Url": "https://feed.piral.cloud/api/v1/nuget/myfeed/index.json"
+      },
       "Public": {
         "Url": "https://api.nuget.org/v3/index.json"
       }
@@ -173,9 +176,12 @@ An example with more NuGet feeds:
   "AllowedHosts": "*",
   "Microfrontends": {
     "CacheDir": ".cache",
-    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/pilet/empty",
-    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/empty",
+    "DiscoveryInfoUrl": "https://feed.piral.cloud/api/v1/microfrontends/myfeed",
+    "DiscoveryUpdateUrl": "wss://feed.piral.cloud/api/v1/pilet/myfeed",
     "NugetFeeds": {
+      "Source": {
+        "Url": "https://feed.piral.cloud/api/v1/nuget/myfeed/index.json"
+      },
       "Public": {
         "Url": "https://api.nuget.org/v3/index.json"
       },
