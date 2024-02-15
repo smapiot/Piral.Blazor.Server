@@ -31,7 +31,6 @@ public class PublishMicrofrontendOptions : ICommand
         var file = $"{projectName}.nupkg";
 
         RunCommand("dotnet", "build -c Release", srcDir);
-        RunCommand("dotnet", "pack", buildDir);
 
         //TODO handle interactive case
         RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDirRoot);
