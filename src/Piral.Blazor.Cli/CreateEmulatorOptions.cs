@@ -117,7 +117,7 @@ public class CreateEmulatorOptions : ICommand
         var projectVersion = project.GetVersion() ?? "1.0.0";
         var projectAuthors = project.GetAuthor() ?? "Piral";
         var license = project.GetLicense() ?? "MIT";
-        var sdkVersion = project.GetSdkVersion() ?? "0.4.0";
+        var sdkVersion = project.GetSdkVersion() ?? "0.4.1";
         var name = Name ?? $"{projectName}.Emulator";
         var description = $"The emulator for the {projectName} application.";
         var fn = Path.Combine(outDir, $"{name}.nupkg");

@@ -102,7 +102,7 @@ As an example, the following is a valid *csproj* file for a micro frontend:
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>0.4.0</Version>
+    <Version>1.2.3</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AppShell>My.Emulator/0.1.0</AppShell>
