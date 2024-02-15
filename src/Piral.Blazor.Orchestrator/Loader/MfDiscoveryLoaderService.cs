@@ -21,7 +21,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
         _repository = repository;
         _snapshot = snapshot;
         _package = package;
-        _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl") ?? "https://feed.piral.cloud/api/v1/pilet/empty";
+        _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl") ?? "https://feed.piral.cloud/api/v1/microfrontends/empty";
         _wsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl") ?? "wss://feed.piral.cloud/api/v1/pilet/empty";
 
         repository.PackagesChanged += OnPackagesChanged;
@@ -51,7 +51,8 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
                     if (version is not null)
                     {
-                        var mf = await _package.LoadMicrofrontend(item.Key, version);
+                        var name = data?.Extras?.Id ?? item.Key;
+                        var mf = await _package.LoadMicrofrontend(name, version);
                         await _repository.SetPackage(mf);
                     }
                 }
@@ -75,7 +76,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
                 // Ignore such errors for now - just reconnect as long as
                 // the service is running
                 // We wait a second to give the server a chance to recover
-                await Task.Delay(1000).ConfigureAwait(false);
+                await Task.Delay(1000, ct).ConfigureAwait(false);
             }
         }
     }
