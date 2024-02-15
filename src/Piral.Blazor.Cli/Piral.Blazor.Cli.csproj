@@ -28,9 +28,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-    <PackageReference Include="NuGet.Packaging" Version="6.8.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.8.0" />
-    <PackageReference Include="NuGet.Resolver" Version="6.8.0" />
+    <PackageReference Include="NuGet.Packaging" Version="6.8.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.8.1" />
+    <PackageReference Include="NuGet.Resolver" Version="6.8.1" />
     <PackageReference Include="VsTools.Projects" Version="1.2.0" />
   </ItemGroup>
 
