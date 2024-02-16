@@ -24,6 +24,7 @@ internal class NugetService : INugetService
     public NugetService(IConfiguration configuration)
     {
         var feeds = configuration.GetSection("Microfrontends:NugetFeeds").Get<Dictionary<string, NugetFeedConfig>>();
+        var feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl");
 
         _repositories = feeds?.Values.Select(m =>
         {
@@ -36,6 +37,14 @@ internal class NugetService : INugetService
 
             return repo;
         }).ToList() ?? Enumerable.Repeat(Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json"), 1);
+
+        // Special case: The feed URL is actually a NuGet feed.
+        if (feedUrl is not null && feedUrl.EndsWith("/index.json"))
+        {
+            var current = new List<SourceRepository>(_repositories);
+            current.Insert(0, Repository.Factory.GetCoreV3(feedUrl));
+            _repositories = current;
+        }
     }
 
     public IEnumerable<PackageDependency> ListDependencies(PackageArchiveReader reader)

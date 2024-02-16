@@ -40,21 +40,40 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     {
         if (!string.IsNullOrEmpty(_feedUrl))
         {
-            var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(_feedUrl);
-
-            if (response?.MicroFrontends is not null)
+            // This is a NuGet feed
+            if (_feedUrl.EndsWith("/index.json"))
             {
-                foreach (var item in response.MicroFrontends)
-                {
-                    var data = item.Value.FirstOrDefault();
-                    var version = data?.Metadata?.Version;
+                var response = await _client.GetFromJsonAsync<MfNugetServiceResponse>(_feedUrl, cancellationToken);
+                var discoveryUrl = response?.Resources?.FirstOrDefault(m => m.Type == "MicroFrontendDiscovery/1.0.0")?.Id;
 
-                    if (version is not null)
-                    {
-                        var name = data?.Extras?.Id ?? item.Key;
-                        var mf = await _package.LoadMicrofrontend(name, version);
-                        await _repository.SetPackage(mf);
-                    }
+                if (discoveryUrl is not null)
+                {
+                    await LoadMicrofrontendsFromDiscoveryUrl(discoveryUrl, cancellationToken);
+                }
+            }
+            else
+            {
+                await LoadMicrofrontendsFromDiscoveryUrl(_feedUrl, cancellationToken);
+            }
+        }
+    }
+
+    private async Task LoadMicrofrontendsFromDiscoveryUrl(string feedUrl, CancellationToken cancellationToken)
+    {
+        var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(feedUrl, cancellationToken);
+
+        if (response?.MicroFrontends is not null)
+        {
+            foreach (var item in response.MicroFrontends)
+            {
+                var data = item.Value.FirstOrDefault();
+                var version = data?.Metadata?.Version;
+
+                if (version is not null)
+                {
+                    var name = data?.Extras?.Id ?? item.Key;
+                    var mf = await _package.LoadMicrofrontend(name, version);
+                    await _repository.SetPackage(mf);
                 }
             }
         }

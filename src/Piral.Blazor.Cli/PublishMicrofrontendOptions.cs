@@ -25,15 +25,32 @@ public class PublishMicrofrontendOptions : ICommand
         var srcDir = Path.Combine(Environment.CurrentDirectory, Source ?? "");
         var csproj = srcDir.GetProjectFile() ?? throw new InvalidOperationException($"No csproj file found in '{srcDir}'.");
         var buildDirRoot = Path.Combine(srcDir, "bin", "Release");
-        var buildDir = Path.Combine(buildDirRoot, "net8.0");
         var project = Project.Load(csproj);
         var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
-        var file = $"{projectName}.nupkg";
+        var projectVersion = project.GetVersion() ?? "1.0.0";
+        var file = $"{projectName}.{projectVersion}.nupkg";
 
         RunCommand("dotnet", "build -c Release", srcDir);
 
-        //TODO handle interactive case
-        RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDirRoot);
+        if (!File.Exists(Path.Combine(buildDirRoot, file)))
+        {
+            var nupkg = Directory.GetFiles(buildDirRoot, "*.nupkg").FirstOrDefault();
+
+            if (nupkg is not null)
+            {
+                file = Path.GetFileName(nupkg);
+            }
+            else
+            {
+                file = null;
+            }
+        }
+
+        if (file is not null)
+        {
+            //TODO handle interactive case
+            RunCommand("dotnet", $"nuget push {file} --api-key {ApiKey} --source {Url}", buildDirRoot);
+        }
 
         return Task.CompletedTask;
     }
