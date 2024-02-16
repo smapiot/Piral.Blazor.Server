@@ -1,11 +1,12 @@
 # Piral.Blazor.Server Changelog
 
-## 0.4.1 (tbd)
+## 0.4.1 (February 16, 2024)
 
 - Fixed issue with `piral-blazor-server publish-microfrontend` to take wrong path
 - Updated NuGet dependencies
 - Updated documentation
 - Added support for special fields (`Id`) in micro frontend discovery
+- Added automatic detection of NuGet feed usage as discovery service
 
 ## 0.4.0 (February 14, 2024)
 
