@@ -5,14 +5,15 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IModuleContainerService container, IEvents events, IData data) : MicrofrontendPackage(name, version, container, events, data)
+internal class NugetMicrofrontendPackage(string name, string version, List<PackageArchiveReader> packages, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) : MicrofrontendPackage(name, version, container, events, data)
 {
     private const string target = "net8.0";
+    private readonly IPiralConfig _config = config;
     private readonly Dictionary<string, PackageArchiveReader> _packages = packages.ToDictionary(m => m.NuspecReader.GetId());
 
     private Assembly? LoadAssembly(PackageArchiveReader package, string path)
     {
-        using var msStream = GetFile(package, path);
+        using var msStream = GetFile(package, path).Result;
 
         if (msStream is not null)
         {
@@ -22,7 +23,7 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
         return null;
     }
 
-    private static Stream? GetFile(PackageArchiveReader package, string path)
+    private static async Task<MemoryStream?> GetFile(PackageArchiveReader package, string path)
     {
         try
         {
@@ -32,7 +33,7 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
             {
                 using var zipStream = zip.Open();
                 var msStream = new MemoryStream();
-                zipStream.CopyTo(msStream);
+                await zipStream.CopyToAsync(msStream);
                 msStream.Position = 0;
                 return msStream;
             }
@@ -41,6 +42,10 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
         {
             // This is expected - nothing wrong here
         }
+        catch (InvalidDataException)
+        {
+            // This is not expected, but should be handled gracefully
+        }
 
         return null;
     }
@@ -48,7 +53,11 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
     protected override Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
     {
         var dll = $"{assemblyName.Name}.dll";
+        return AddAssemblyToContext(dll);
+    }
 
+    private Assembly? AddAssemblyToContext(string dll)
+    {
         foreach (var package in _packages.Values)
         {
             var libItems = package.GetLibItems().FirstOrDefault(m => IsCompatible(m.TargetFramework))?.Items;
@@ -78,7 +87,17 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
 
     protected override Assembly? GetAssembly() => LoadAssembly(_packages[Name], $"lib/{target}/{Name}.dll");
 
-    public override Stream? GetFile(string path)
+    protected override Task OnInitializing()
+    {
+        foreach (var assembly in _config.IsolatedAssemblies)
+        {
+            AddAssemblyToContext(assembly);
+        }
+
+        return base.OnInitializing();
+    }
+
+    public override async Task<Stream?> GetFile(string path)
     {
         if (path.StartsWith("_content"))
         {
@@ -89,7 +108,7 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
 
             if (package is not null)
             {
-                return GetFile(package, $"staticwebassets/{localPath}");
+                return await GetFile(package, $"staticwebassets/{localPath}");
             }
 
             return null;
@@ -97,7 +116,7 @@ internal class NugetMicrofrontendPackage(string name, string version, List<Packa
         else
         {
             var package = _packages[Name];
-            return GetFile(package, $"staticwebassets/{path}");
+            return await GetFile(package, $"staticwebassets/{path}");
         }
     }
 }

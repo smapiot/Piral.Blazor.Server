@@ -36,7 +36,7 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
 
     protected override Assembly? GetAssembly() => Context.LoadFromAssemblyPath(_assembly.Location);
 
-    public override Stream? GetFile(string path)
+    public override Task<Stream?> GetFile(string path)
     {
         if (path.StartsWith("_content"))
         {
@@ -53,7 +53,7 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
                     if (File.Exists(fullPath))
                     {
                         var fs = File.OpenRead(fullPath);
-                        return fs;
+                        return Task.FromResult<Stream?>(fs);
                     }
                 }
             }
@@ -67,12 +67,12 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
                 if (File.Exists(fullPath))
                 {
                     var fs = File.OpenRead(fullPath);
-                    return fs;
+                    return Task.FromResult<Stream?>(fs);
                 }
             }
         }
 
-        return null;
+        return Task.FromResult<Stream?>(null);
     }
 
     protected override string GetCssName() => $"{Name}.styles.css";

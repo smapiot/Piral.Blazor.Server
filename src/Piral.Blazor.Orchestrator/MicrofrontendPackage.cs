@@ -68,6 +68,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     {
         _context.Resolving += LoadMissingAssembly;
 
+        await OnInitializing();
+
         var assembly = GetAssembly();
 
         if (assembly is not null)
@@ -81,6 +83,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     }
 
     protected abstract Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName);
+
+    protected virtual Task OnInitializing() => Task.CompletedTask;
 
     protected virtual Task OnInitialized() => Task.CompletedTask;
 
@@ -100,7 +104,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
     public virtual void Dispose() => Context.Unload();
 
-    public abstract Stream? GetFile(string path);
+    public abstract Task<Stream?> GetFile(string path);
 
     sealed class RelatedMfAppService(string name, string version, IEvents events, IData data) : IMfAppService
     {
