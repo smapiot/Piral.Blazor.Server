@@ -1,5 +1,11 @@
 # Piral.Blazor.Server Changelog
 
+## 0.5.0 (tbd)
+
+- Fixed issue with broken assets
+- Added `PiralOptions` to configure behavior
+- Added `IsolatedAssemblies` option
+
 ## 0.4.1 (February 16, 2024)
 
 - Fixed issue with `piral-blazor-server publish-microfrontend` to take wrong path

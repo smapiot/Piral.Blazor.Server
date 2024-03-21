@@ -201,3 +201,16 @@ An example with more NuGet feeds:
 ```
 
 As you can see the `User` and `Token` fields, which are usually required for authenticating against a private feed, are left empty. This is not a mistake, but actually a best practice. You can use the .NET secret manager to then fill these parts. More details can be found [in the Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=linux).
+
+## Initial Options
+
+The behavior of the library can be configured when the DI services are configured, e.g.:
+
+```cs
+builder.Services.AddMicrofrontends<MfDiscoveryLoaderService>(new()
+{
+    IsolatedAssemblies = ["BlazorOcticons.dll"],
+});
+```
+
+This will instruct the Piral orchestrator to keep loading the locally available (yet centrally provided) `BlazorOctions.dll`.

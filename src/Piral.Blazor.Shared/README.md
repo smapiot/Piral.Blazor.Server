@@ -9,7 +9,7 @@
 This is a shared library that will be automatically installed and used with `Piral.Blazor.Orchestrator` or in a micro frontend when you leverage the `Piral.Blazor.Sdk` SDK like this:
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.4.1">
+<Project Sdk="Piral.Blazor.Sdk/0.5.0">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
