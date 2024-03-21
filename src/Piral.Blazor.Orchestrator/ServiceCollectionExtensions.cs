@@ -8,11 +8,12 @@ namespace Piral.Blazor.Orchestrator;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMicrofrontends<TLoader>(this IServiceCollection services)
+    public static IServiceCollection AddMicrofrontends<TLoader>(this IServiceCollection services, PiralOptions? options = default)
         where TLoader : class, IMfLoaderService
     {
-        var isEmulator = Environment.GetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY") is not null;
+        var config = new ProvidedPiralConfig(options ?? new PiralOptions());
 
+        services.AddSingleton<IPiralConfig>(config);
         services.AddSingleton<IModuleContainerService, ModuleContainerService>();
         services.AddSingleton<IMfRepository, MfRepository>();
         services.AddSingleton<INugetService, NugetService>();
@@ -20,7 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEvents, GlobalEvents>();
         services.AddSingleton<IData, GlobalData>();
 
-        if (isEmulator)
+        if (config.IsEmulator)
         {
             services.AddSingleton<TLoader>();
             services.TryAddScoped<IMfDebugConnector, MfEmulatorConnector>();

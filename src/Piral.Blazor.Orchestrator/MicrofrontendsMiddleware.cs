@@ -26,7 +26,7 @@ internal class MicrofrontendsMiddleware(RequestDelegate next, IMfRepository repo
 
                 if (package is not null)
                 {
-                    using var ms = package.GetFile(path);
+                    using var ms = await package.GetFile(path);
 
                     if (ms is not null)
                     {

@@ -8,12 +8,20 @@ namespace Piral.Blazor.Orchestrator;
 public class MfRouter : IComponent
 {
     private IMfComponentService? _componentService;
+    private IPiralConfig? _config;
 
     [Inject]
     public IMfComponentService? ComponentService
     {
         get { return _componentService; }
         set { _componentService = value; }
+    }
+
+    [Inject]
+    public IPiralConfig? Config
+    {
+        get { return _config; }
+        set { _config = value; }
     }
 
     [Parameter]
@@ -35,9 +43,9 @@ public class MfRouter : IComponent
 
     private IEnumerable<Assembly> GetAssemblies()
     {
-        if (_componentService is not null)
+        if (_componentService is not null && _config is not null)
         {
-            foreach (var item in _componentService.GetAllRouteComponents().Select(m => m.Component.Assembly).Distinct())
+            foreach (var item in _componentService.GetAllRouteComponents(_config.IsEmulator).Select(m => m.Component.Assembly).Distinct())
             {
                 yield return item;
             }

@@ -1,7 +1,7 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Piral.Blazor.Shared;
+using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -11,6 +11,9 @@ public class MfRouteView : RouteView
 
     [Inject]
     public IMfComponentService? ComponentService { get; set; }
+
+    [Inject]
+    public IPiralConfig? Config { get; set; }
 
     public MfRouteView()
     {
@@ -31,7 +34,8 @@ public class MfRouteView : RouteView
     private void RenderPageWithParameters(RenderTreeBuilder builder)
     {
         var pageType = RouteData.PageType;
-        var (route, origin, _) = ComponentService!.GetAllRouteComponents().FirstOrDefault(m => m.Component == pageType);
+        var isEmulator = Config!.IsEmulator;
+        var (route, origin, _) = ComponentService!.GetAllRouteComponents(isEmulator).FirstOrDefault(m => m.Component == pageType);
         var isContained = route is not null && origin is not null;
 
         if (isContained)

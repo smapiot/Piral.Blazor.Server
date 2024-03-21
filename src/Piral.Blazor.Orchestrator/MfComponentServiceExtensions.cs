@@ -19,10 +19,9 @@ public static class MfComponentServiceExtensions
         }
     }
 
-    public static IEnumerable<Assembly> GetRouteAssemblies(this IEnumerable<MicrofrontendPackage> packages)
+    public static IEnumerable<Assembly> GetRouteAssemblies(this IEnumerable<MicrofrontendPackage> packages, bool isEmulator)
     {
         var otherAssemblies = packages.SelectMany(m => m.Components.Where(m => m.Name.StartsWith(ROUTE_PREFIX)).Select(m => m.Type.Assembly)).Distinct();
-        var isEmulator = Environment.GetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY") is not null;
 
         if (isEmulator)
         {
@@ -33,10 +32,8 @@ public static class MfComponentServiceExtensions
         return otherAssemblies;
     }
 
-    public static IEnumerable<(string Route, string Microfrontend, Type Component)> GetAllRouteComponents(this IMfComponentService service)
+    public static IEnumerable<(string Route, string Microfrontend, Type Component)> GetAllRouteComponents(this IMfComponentService service, bool isEmulator)
     {
-        var isEmulator = Environment.GetEnvironmentVariable("PIRAL_BLAZOR_DEBUG_ASSEMBLY") is not null;
-
         if (isEmulator)
         {
             yield return ("/$debug-extension-catalogue", "root", typeof(ExtensionCatalogue));
