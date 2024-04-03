@@ -1,40 +1,37 @@
 ---
-title: Hono - Ultrafast web framework for the Edges
+title: Piral.Blazor - Micro Frontends for .NET
 titleTemplate: ':title'
 head:
   - [
       'meta',
       {
         property: 'og:description',
-        content: 'Hono is a small, simple, and ultrafast web framework for the Edges. It works on Cloudflare Workers, Fastly Compute, Deno, Bun, Vercel, Netlify, AWS Lambda, Lambda@Edge, and Node.js. Fast, but not only fast.',
+        content: 'Piral.Blazor allows you to write distributed web applications using dotnet and Blazor.',
       },
     ]
 layout: home
 hero:
   name: Piral.Blazor
-  text: Micro Frontends for .NET
-  tagline: Write distributed web applications using dotnet and Blazor.
+  text: Scale Your Web App
+  tagline: Write distributed web applications with Micro Frontends using dotnet and Blazor.
   image:
-    src: /images/code.webp
-    alt: Hono
+    src: /images/logo-large.png
+    alt: Piral.Blazor
   actions:
     - theme: brand
       text: View Docs
-      link: /top
+      link: /getting-started/
     - theme: alt
-      text: View on GitHub
-      link: https://github.com/smapiot/Piral.Blazor
+      text: View Examples
+      link: /examples/
 features:
   - icon: 🚀
-    title: Ultrafast & Lightweight
-    details: The router RegExpRouter is really fast. The hono/tiny preset is under 14kB. Using only Web Standard APIs.
-  - icon: 🌍
-    title: Multi-runtime
-    details: Works on Cloudflare, Fastly, Deno, Bun, AWS, or Node.js. The same code runs on all platforms.
+    title: Fully Portable
+    details: Take your existing code and put it in one or more micro frontends. Share your micro frontends across different applications.
   - icon: 🔋
     title: Batteries Included
-    details: Hono has built-in middleware, custom middleware, third-party middleware, and helpers. Batteries included.
-  - icon: 😃
-    title: Delightful DX
-    details: Super clean APIs. First-class TypeScript support. Now, we've got "Types".
+    details: Piral is an ecosystem made specifically for micro frontends. Enjoy command line tools, services, editor plugins, and browser extensions.
+  - icon: 🧩
+    title: Composable
+    details: Create web applications that are dynamically composed according to feature flags and rules.
 ---

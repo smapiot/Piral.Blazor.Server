@@ -5,6 +5,7 @@
 - Fixed issue with broken assets
 - Added `PiralOptions` to configure behavior
 - Added `IsolatedAssemblies` option
+- Added new documentation page (blazor.piral.io)
 
 ## 0.4.1 (February 16, 2024)
 
