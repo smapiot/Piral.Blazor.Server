@@ -32,6 +32,6 @@ jobs:
       - name: Deploy App Shell
         run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          gh-pages -d ".vitepress/dist/release" -u "github-actions-bot <support+actions@github.com>"
+          gh-pages -d "docs/.vitepress/dist" -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
