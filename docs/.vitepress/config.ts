@@ -7,7 +7,22 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     collapsed: true,
     items: [
       { text: "Basics", link: "/getting-started/" },
-      { text: "Setup", link: "/getting-started/setup" },
+      { text: "Concepts", link: "/getting-started/concepts" },
+    ],
+  },
+  {
+    text: "Server",
+    collapsed: true,
+    items: [
+      { text: "Setup", link: "/getting-started/server/setup" },
+      { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
+    ],
+  },
+  {
+    text: "SPA",
+    collapsed: true,
+    items: [
+      { text: "Setup", link: "/getting-started/spa/setup" },
     ],
   },
   {
@@ -55,7 +70,7 @@ export default defineConfig({
       { icon: "x", link: "https://twitter.com/cloudpiral" },
     ],
     editLink: {
-      pattern: "https://github.com/smapiot/Piral.Blazor.Server/edit/main/:path",
+      pattern: "https://github.com/smapiot/Piral.Blazor.Server/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
     footer: {
