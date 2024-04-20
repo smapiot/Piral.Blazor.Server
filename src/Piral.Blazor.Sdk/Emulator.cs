@@ -46,11 +46,21 @@ public static class Emulator
             .ToArray();
     }
 
+    private static string ResolvePath(string name)
+    {
+        if (!name.StartsWith("."))
+        {
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            return Path.Combine(userProfile, ".nuget", "packages", name.ToLowerInvariant());
+        }
+        
+        return Path.Combine(Environment.CurrentDirectory, name);
+    }
+
     private static string FindPath(Assembly assembly)
     {
-        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name.ToLowerInvariant();
-        var path = Path.Combine(userProfile, ".nuget", "packages", name);
+        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name;
+        var path = ResolvePath(name);
 
         if (Directory.Exists(path))
         {

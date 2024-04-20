@@ -17,6 +17,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Setup", link: "/getting-started/server/setup" },
       { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
       { text: "Publishing", link: "/getting-started/server/publishing" },
+      { text: "Tooling", link: "/getting-started/server/tooling" },
     ],
   },
   {
