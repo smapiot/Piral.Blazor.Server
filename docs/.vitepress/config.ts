@@ -16,6 +16,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     items: [
       { text: "Setup", link: "/getting-started/server/setup" },
       { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
+      { text: "Publishing", link: "/getting-started/server/publishing" },
     ],
   },
   {
@@ -25,6 +26,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Setup", link: "/getting-started/spa/setup" },
       { text: "Micro Frontend", link: "/getting-started/spa/microfrontend" },
       { text: "Debugging", link: "/getting-started/spa/debugging" },
+      { text: "Publishing", link: "/getting-started/spa/publishing" },
       { text: "Configuration", link: "/getting-started/spa/configuration" },
       { text: "Dependency Injection", link: "/getting-started/spa/dependency-injection" },
       { text: "Page Components", link: "/getting-started/spa/pages" },
