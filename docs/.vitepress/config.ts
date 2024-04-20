@@ -23,6 +23,17 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     collapsed: true,
     items: [
       { text: "Setup", link: "/getting-started/spa/setup" },
+      { text: "Micro Frontend", link: "/getting-started/spa/microfrontend" },
+      { text: "Debugging", link: "/getting-started/spa/debugging" },
+      { text: "Configuration", link: "/getting-started/spa/configuration" },
+      { text: "Dependency Injection", link: "/getting-started/spa/dependency-injection" },
+      { text: "Page Components", link: "/getting-started/spa/pages" },
+      { text: "Extension Components", link: "/getting-started/spa/extensions" },
+      { text: "Other Components", link: "/getting-started/spa/other-components" },
+      { text: "Root Component", link: "/getting-started/spa/root" },
+      { text: "Parameters", link: "/getting-started/spa/parameters" },
+      { text: "Pilet Service", link: "/getting-started/spa/pilet-service" },
+      { text: "Localization", link: "/getting-started/spa/localization" },
     ],
   },
   {
