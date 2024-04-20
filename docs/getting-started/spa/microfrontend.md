@@ -4,11 +4,13 @@ We recommend that you watch the video [on scaffolding from the standard VS templ
 
 In general, to create a Blazor pilet using `Piral.Blazor`, two approaches can be used:
 
-## 1. From Scratch
+[[toc]]
+
+## From Scratch
 
 In this case, it is highly recommended to use our template. More information and installation instructions can be found in [`Piral.Blazor.Template`](https://www.nuget.org/packages/Piral.Blazor.Template).
 
-## 2. Transforming an Existing Application
+## From an Existing Application
 
 In this case, follow these steps:
 

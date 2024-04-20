@@ -1,4 +1,8 @@
-# Running and Debugging the Pilet :rocket:
+# Running and Debugging the Pilet
+
+A micro frontend can be debugged using an IDE or the command line.
+
+[[toc]]
 
 ## Using Visual Studio
 

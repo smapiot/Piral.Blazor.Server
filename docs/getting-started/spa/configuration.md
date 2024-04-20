@@ -1,5 +1,9 @@
 # Build Configuration
 
+The main build configuration is done via the project file. Additionally, some special files are considered, too.
+
+[[toc]]
+
 ## Project File
 
 The `*.csproj` file of your pilet offers you some configuration steps to actually tailor the build to your needs.

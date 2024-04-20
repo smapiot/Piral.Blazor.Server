@@ -2,6 +2,8 @@
 
 Every pilet gets automatically a service called `IPiletService` injected.
 
+[[toc]]
+
 ## Asset URLs
 
 The `IPiletService` service can be used to compute the URL of a resource.

@@ -4,6 +4,8 @@ A standard page in Blazor, using the `@page` directive, will work as expected, a
 
 You can also set multiple `@page` directives, which will all lead to page registrations.
 
+[[toc]]
+
 ## Route Parameters
 
 If you want to match the route parameter you can use the generic approach, too:

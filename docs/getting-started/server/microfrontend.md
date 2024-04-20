@@ -1,4 +1,8 @@
-## Micro Frontend Setup
+# Micro Frontend Setup
+
+In general, to create a Blazor pilet using `Piral.Blazor.Server` you should just create a Razor Component Library (RCL) project. This way, you will need to make the least changes.
+
+[[toc]]
 
 ## Prerequisites
 
