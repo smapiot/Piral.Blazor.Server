@@ -46,9 +46,26 @@ public static class Emulator
             .ToArray();
     }
 
-    private static string ResolveLocalPackage(string name)
+    private static string TryResolveLocalPackageAt(string path)
     {
+        if (Directory.Exists(path))
+        {
+            var subpath = Path.Combine(path, "bin", "Release", "net8.0", "publish");
+            //TODO
+            // check if outdated or available at all
+            // if not: re-build before returning the path
+            return subpath;
+        }
+
         return null;
+    }
+
+    private static string TryResolveLocalPackage(string root, string name)
+    {
+        //TODO
+        // add more potential combinations incl. inspect CSPROJ / SLN file
+        // to find out where the local package (if applicable) really is
+        return TryResolveLocalPackage(Path.Combine(root, "..", name));
     }
 
     private static string ResolveGlobalPackage(string name)
@@ -57,11 +74,14 @@ public static class Emulator
         return Path.Combine(userProfile, ".nuget", "packages", name.ToLowerInvariant());
     }
 
-    private static string ResolvePath(string name)
+    private static string ResolvePath(Assembly assembly)
     {
+        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name;
+
         if (!name.StartsWith("."))
         {
-            return ResolveLocalPackage(name) ?? ResolveGlobalPackage(name);
+            var path = assembly.GetCustomAttribute<Piral.Blazor.Sdk.ProjectFolderAttribute>()!.Path;
+            return TryResolveLocalPackage(path, name) ?? ResolveGlobalPackage(name);
         }
         
         return Path.Combine(Environment.CurrentDirectory, name);
@@ -69,8 +89,7 @@ public static class Emulator
 
     private static string FindPath(Assembly assembly)
     {
-        var name = assembly.GetCustomAttribute<Piral.Blazor.Sdk.AppShellAttribute>()!.Name;
-        var path = ResolvePath(name);
+        var path = ResolvePath(assembly);
 
         if (Directory.Exists(path))
         {

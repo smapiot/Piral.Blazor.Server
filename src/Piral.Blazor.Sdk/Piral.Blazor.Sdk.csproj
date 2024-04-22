@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Compile Remove="AppShellAttribute.cs" />
+    <Compile Remove="ProjectFolderAttribute.cs" />
     <Compile Remove="Emulator.cs" />
     <Compile Remove="Lib.cs" />
   </ItemGroup>

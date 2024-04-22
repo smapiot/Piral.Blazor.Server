@@ -12,6 +12,9 @@
       <AssemblyAttributes Include="Piral.Blazor.Sdk.AppShellAttribute">
         <_Parameter1>$(AppShell)</_Parameter1>
       </AssemblyAttributes>
+      <AssemblyAttributes Include="Piral.Blazor.Sdk.ProjectFolderAttribute">
+        <_Parameter1>$(MSBuildProjectDirectory)</_Parameter1>
+      </AssemblyAttributes>
     </ItemGroup>
     <WriteCodeFragment AssemblyAttributes="@(AssemblyAttributes)" Language="C#" OutputDirectory="$(IntermediateOutputPath)" OutputFile="Info.cs">
       <Output TaskParameter="OutputFile" ItemName="Compile" />
@@ -21,7 +24,8 @@
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Compile Include="$(MSBuildThisFileDirectory)..\AppShellAttribute.cs" />
-	<Compile Include="$(MSBuildThisFileDirectory)..\Emulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\ProjectFolderAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\Emulator.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
