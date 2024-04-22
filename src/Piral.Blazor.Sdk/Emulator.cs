@@ -46,12 +46,22 @@ public static class Emulator
             .ToArray();
     }
 
+    private static string ResolveLocalPackage(string name)
+    {
+        return null;
+    }
+
+    private static string ResolveGlobalPackage(string name)
+    {
+        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(userProfile, ".nuget", "packages", name.ToLowerInvariant());
+    }
+
     private static string ResolvePath(string name)
     {
         if (!name.StartsWith("."))
         {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, ".nuget", "packages", name.ToLowerInvariant());
+            return ResolveLocalPackage(name) ?? ResolveGlobalPackage(name);
         }
         
         return Path.Combine(Environment.CurrentDirectory, name);
