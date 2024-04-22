@@ -33,6 +33,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Page Components", link: "/getting-started/spa/pages" },
       { text: "Extension Components", link: "/getting-started/spa/extensions" },
       { text: "Other Components", link: "/getting-started/spa/other-components" },
+      { text: "Provider Components", link: "/getting-started/spa/providers" },
       { text: "Root Component", link: "/getting-started/spa/root" },
       { text: "Parameters", link: "/getting-started/spa/parameters" },
       { text: "Pilet Service", link: "/getting-started/spa/pilet-service" },
