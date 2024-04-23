@@ -34,11 +34,11 @@ You can also provide your own providers here (or nest them as you want):
 }
 ```
 
+It is critical to understand that each attached pilet component starts its own Blazor rendering tree. Therefore, while there is just a single `PiralAppRoot` component there might be multiple instances active at a given point in time. This is a crucial difference to `PiralProvider` components, which are essentially singletons from a rendering perspective.
+
 ::: warning
 There is always just one `PiralAppRoot` component. If you did not supply one then the default `PiralAppRoot` will be used. If you already provided one, no other `PiralAppRoot` can be used.
 :::
-
-It is critical to understand that each attached pilet component starts its own Blazor rendering tree. Therefore, while there is just a single `PiralAppRoot` component there might be multiple instances active at a given point in time. This is a crucial difference to `PiralProvider` components, which are essentially singletons from a rendering perspective.
 
 The difference between app root and provider components is as follows:
 
