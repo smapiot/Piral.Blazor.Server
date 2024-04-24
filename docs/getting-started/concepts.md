@@ -14,6 +14,8 @@ For `Piral.Blazor.Orchestrator` (server) the app shell is your ASP.NET Core appl
 
 A micro frontend (or pilet) is a module that can be loaded into an app shell. You can think of it as a plugin. A micro frontend can register / provide domain-specific components that are then rendered where specified. While a SPA micro frontend may come with all kinds of components (e.g., Angular, React, ... - not only Blazor), a server micro frontend can only register Blazor components.
 
+A micro frontend starts as a Razor Component Library (RCL), that is different to your usual RCL in the way how it is consumed. While a standard RCL is used directly (reference the assembly, use the components with their fully qualified names), a micro frontend is used indirectly. It binds to certain registrations, e.g., to include a page, a menu item, or just some generic component.
+
 ## Micro Frontend Discovery / Feed Service
 
 A micro frontend discovery service (or feed service) is a web service providing an API to publish or consume micro frontends. Usually, you want to access a certain feed that belongs to your application. A feed is a collection of micro frontends. Only users / systems that you allowed should be capable of publishing micro frontends (completely new or updated) to your feed.

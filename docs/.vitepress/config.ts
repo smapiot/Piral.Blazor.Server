@@ -15,9 +15,10 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     collapsed: true,
     items: [
       { text: "Setup", link: "/getting-started/server/setup" },
+      { text: "Tooling", link: "/getting-started/server/tooling" },
+      { text: "Emulator", link: "/getting-started/server/emulator" },
       { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
       { text: "Publishing", link: "/getting-started/server/publishing" },
-      { text: "Tooling", link: "/getting-started/server/tooling" },
     ],
   },
   {
