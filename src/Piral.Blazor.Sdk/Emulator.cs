@@ -65,7 +65,7 @@ public static class Emulator
         //TODO
         // add more potential combinations incl. inspect CSPROJ / SLN file
         // to find out where the local package (if applicable) really is
-        return TryResolveLocalPackage(Path.Combine(root, "..", name));
+        return TryResolveLocalPackageAt(Path.Combine(root, "..", name));
     }
 
     private static string ResolveGlobalPackage(string name)
