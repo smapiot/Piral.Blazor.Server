@@ -24,13 +24,15 @@ public static class Emulator
 
         Environment.CurrentDirectory = dir;
 
-        AssemblyLoadContext.Default.Resolving += (alc, assemblyName) =>
+        var root = new AssemblyLoadContext("root");
+
+        root.Resolving += (alc, assemblyName) =>
         {
             var path = Path.Combine(dir, $"{assemblyName.Name}.dll");
             return alc.LoadFromAssemblyPath(path);
         };
 
-        var ass = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+        var ass = root.LoadFromAssemblyPath(path);
         var prog = ass.DefinedTypes.First(m => m.Name == "Program");
         var method = prog.GetMethods(BindingFlags.Static | BindingFlags.NonPublic).First();
 
@@ -46,15 +48,55 @@ public static class Emulator
             .ToArray();
     }
 
+    private static void RunCommand(string cmd, string arguments, string cwd)
+    {
+        var proc = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = cmd,
+                WorkingDirectory = cwd,
+                Arguments = arguments,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+            },
+        };
+
+        proc.OutputDataReceived += (sender, e) => Console.WriteLine($"[{cmd}] {e.Data}");
+        proc.ErrorDataReceived += (sender, e) => Console.WriteLine($"[{cmd}] {e.Data}");
+
+        proc.Start();
+        proc.BeginOutputReadLine();
+        proc.BeginErrorReadLine();
+        proc.WaitForExit();
+
+        if (proc.ExitCode != 0)
+        {
+            throw new Exception($"The '{cmd}' application exited with an error.");
+        }
+    }
+
     private static string TryResolveLocalPackageAt(string path)
     {
         if (Directory.Exists(path))
         {
-            var subpath = Path.Combine(path, "bin", "Release", "net8.0", "publish");
-            //TODO
-            // check if outdated or available at all
-            // if not: re-build before returning the path
-            return subpath;
+            var files = Directory.GetFiles(path, "*.csproj");
+
+            if (files.Length == 1)
+            {
+                var subpath = Path.Combine(path, "bin", "Release", "net8.0", "publish");
+                //TODO check if outdated
+                var mustBuild = !Directory.Exists(subpath);
+
+                if (mustBuild)
+                {
+                    RunCommand("dotnet", "publish -c Release", path);
+                }
+
+                return subpath;
+            }
         }
 
         return null;

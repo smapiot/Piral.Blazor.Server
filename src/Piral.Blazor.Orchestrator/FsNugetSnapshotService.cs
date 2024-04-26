@@ -3,6 +3,7 @@ using NuGet.Packaging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -11,7 +12,7 @@ public class FsNugetSnapshotService : ISnapshotService
     private readonly ConcurrentDictionary<string, PackageArchiveReader> _db = new();
     private readonly ConcurrentDictionary<string, IEnumerable<NugetEntry>> _deps = new();
     private readonly ConcurrentQueue<Func<Task>> _jobs = new();
-    private readonly List<NugetEntry> _mfs = [];
+    private readonly List<NugetEntryWithConfig> _mfs = [];
 
     private readonly INugetService _nuget;
     private readonly DirectoryInfo _snapshot;
@@ -33,7 +34,7 @@ public class FsNugetSnapshotService : ISnapshotService
             var entries = ids.Select(m =>
             {
                 var (name, version) = m.GetIdentity();
-                return new NugetEntry { Name = name, Version = version };
+                return new NugetEntryWithConfig { Name = name, Version = version };
             });
             _mfs.Clear();
             _mfs.AddRange(entries);
@@ -62,6 +63,18 @@ public class FsNugetSnapshotService : ISnapshotService
         }
 
         return _mfs.Select(m => m.MakePackageId()).ToList();
+    }
+
+    public async Task<JsonObject?> GetConfig(string id)
+    {
+        if (!_initialized)
+        {
+            await RestorePackageSnapshot();
+            _initialized = true;
+        }
+
+        var (name, version) = id.GetIdentity();
+        return _mfs.Find(m => m.Name == name && m.Version == version)?.Config;
     }
 
     public async Task<PackageArchiveReader?> LoadPackage(string id)
@@ -122,9 +135,9 @@ public class FsNugetSnapshotService : ISnapshotService
             if (id == "_" && ext == ".json")
             {
                 using var fs = file.OpenRead();
-                var result = await JsonSerializer.DeserializeAsync<List<NugetEntry>>(fs);
+                var result = await JsonSerializer.DeserializeAsync<List<NugetEntryWithConfig>>(fs);
                 _mfs.Clear();
-                _mfs.AddRange(result ?? Enumerable.Empty<NugetEntry>());
+                _mfs.AddRange(result ?? Enumerable.Empty<NugetEntryWithConfig>());
             }
             else if (ext == ".nupkg" && !_db.ContainsKey(id))
             {
@@ -144,7 +157,7 @@ public class FsNugetSnapshotService : ISnapshotService
         }
     }
 
-    private async Task StoreMicrofrontendsSnapshot(IEnumerable<NugetEntry> microfrontends)
+    private async Task StoreMicrofrontendsSnapshot(IEnumerable<NugetEntryWithConfig> microfrontends)
     {
         var fn = $"_.json";
         var target = Path.Combine(_snapshot.FullName, fn);

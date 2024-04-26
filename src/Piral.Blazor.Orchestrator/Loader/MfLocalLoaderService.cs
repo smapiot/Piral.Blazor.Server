@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator.Loader;
 
@@ -20,9 +21,10 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
     {
         var ass = Assembly.GetEntryAssembly()!;
         var all = (Environment.GetEnvironmentVariable("PIRAL_BLAZOR_ALL_DEBUG_ASSEMBLIES") ?? "").Split(',');
+        var cfg = new JsonObject();
 
         // set primary
-        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, _container, _events, _data));
+        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, cfg, _container, _events, _data));
 
         foreach (var path in all)
         {
@@ -30,7 +32,7 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
             {
                 // set other
                 var other = Assembly.LoadFrom(path);
-                await _repository.SetPackage(new LocalMicrofrontendPackage(other, _container, _events, _data));
+                await _repository.SetPackage(new LocalMicrofrontendPackage(other, cfg, _container, _events, _data));
             }
         }
     }

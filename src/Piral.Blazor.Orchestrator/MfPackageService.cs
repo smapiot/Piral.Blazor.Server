@@ -1,4 +1,5 @@
 ﻿using NuGet.Packaging;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -10,10 +11,10 @@ internal class MfPackageService(IPiralConfig config, IModuleContainerService con
     private readonly IEvents _events = events;
     private readonly IData _data = data;
 
-    public async Task<MicrofrontendPackage> LoadMicrofrontend(string name, string version)
+    public async Task<MicrofrontendPackage> LoadMicrofrontend(string name, string version, JsonObject? config)
     {
         var packages = await CollectPackages(name, version);
-        return new NugetMicrofrontendPackage(name, version, packages, _config, _container, _events, _data);
+        return new NugetMicrofrontendPackage(name, version, config, packages, _config, _container, _events, _data);
     }
 
     private async Task<List<PackageArchiveReader>> CollectPackages(string name, string version)

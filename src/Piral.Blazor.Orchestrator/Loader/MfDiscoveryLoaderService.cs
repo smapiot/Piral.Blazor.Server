@@ -72,7 +72,8 @@ public class MfDiscoveryLoaderService : IMfLoaderService
                 if (version is not null)
                 {
                     var name = data?.Extras?.Id ?? item.Key;
-                    var mf = await _package.LoadMicrofrontend(name, version);
+                    var config = data?.Extras?.Config;
+                    var mf = await _package.LoadMicrofrontend(name, version, config);
                     await _repository.SetPackage(mf);
                 }
             }

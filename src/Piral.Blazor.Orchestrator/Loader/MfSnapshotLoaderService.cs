@@ -18,7 +18,8 @@ public class MfSnapshotLoaderService(IMfRepository repository, IMfPackageService
         foreach (var id in ids)
         {
             var (name, version) = id.GetIdentity();
-            var mf = await _package.LoadMicrofrontend(name, version);
+            var config = await _snapshot.GetConfig(id);
+            var mf = await _package.LoadMicrofrontend(name, version, config);
             await _repository.SetPackage(mf);
         }
     }

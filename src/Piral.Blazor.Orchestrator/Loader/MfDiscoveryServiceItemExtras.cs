@@ -1,4 +1,6 @@
-﻿namespace Piral.Blazor.Orchestrator.Loader;
+﻿using System.Text.Json.Nodes;
+
+namespace Piral.Blazor.Orchestrator.Loader;
 
 internal class MfDiscoveryServiceItemExtras
 {
@@ -19,4 +21,6 @@ internal class MfDiscoveryServiceItemExtras
     public string? Framework { get; set; }
 
     public MfDiscoveryServiceItemExtrasPilet? Pilet { get; set; }
+
+    public JsonObject? Config { get; set; }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -9,13 +10,13 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
     private readonly Assembly _assembly;
     private readonly List<string> _contentRoots = [];
 
-    public LocalMicrofrontendPackage(Assembly assembly, IModuleContainerService container, IEvents events, IData data)
-        : this(assembly, assembly.GetName(), container, events, data)
+    public LocalMicrofrontendPackage(Assembly assembly, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
+        : this(assembly, assembly.GetName(), config, container, events, data)
     {
     }
 
-    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, IModuleContainerService container, IEvents events, IData data)
-        : base(assemblyName.Name!, assemblyName.Version!.ToString(), container, events, data)
+    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
+        : base(assemblyName.Name!, assemblyName.Version!.ToString(), config, container, events, data)
     {
         _assembly = assembly;
     }

@@ -13,6 +13,6 @@
         /// <summary>
         /// Gets the version of the micro frontend.
         /// </summary>
-        public required string Version{ get; init; }
+        public required string Version { get; init; }
     }
 }

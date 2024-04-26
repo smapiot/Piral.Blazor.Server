@@ -2,12 +2,13 @@
 using Piral.Blazor.Shared;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage(string name, string version, IModuleContainerService container, IEvents events, IData data) : IDisposable
+public abstract class MicrofrontendPackage(string name, string version, JsonObject? config, IModuleContainerService container, IEvents events, IData data) : IDisposable
 {
-    private readonly RelatedMfAppService _app = new(name, version, events, data);
+    private readonly RelatedMfAppService _app = new(name, version, config, events, data);
     private readonly IModuleContainerService _container = container;
     private readonly AssemblyLoadContext _context = new ($"{name}@{version}", true);
     public event EventHandler? PackageChanged;
@@ -21,6 +22,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
     public string Name => _app.Name;
 
     public string Version => _app.Version;
+
+    public JsonObject? Config => _app.Config;
 
     public bool IsDisabled
     {
@@ -106,7 +109,7 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
 
     public abstract Task<Stream?> GetFile(string path);
 
-    sealed class RelatedMfAppService(string name, string version, IEvents events, IData data) : IMfAppService
+    sealed class RelatedMfAppService(string name, string version, JsonObject? config, IEvents events, IData data) : IMfAppService
     {
         private readonly IEvents _events = events;
         private readonly IData _data = data;
@@ -123,6 +126,8 @@ public abstract class MicrofrontendPackage(string name, string version, IModuleC
         public string Name { get; } = name;
 
         public string Version { get; } = version;
+
+        public JsonObject? Config { get; } = config;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {
