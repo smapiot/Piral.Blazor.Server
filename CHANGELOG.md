@@ -5,7 +5,9 @@
 - Fixed issue with broken assets
 - Added `PiralOptions` to configure behavior
 - Added `IsolatedAssemblies` option
+- Added support for relative paths in `AppShell` of SDK (#2)
 - Added new documentation page (blazor.piral.io)
+- Added roadmap (#3)
 
 ## 0.4.1 (February 16, 2024)
 
