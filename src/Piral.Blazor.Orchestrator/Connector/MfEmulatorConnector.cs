@@ -4,13 +4,14 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using NuGet.Versioning;
 
 namespace Piral.Blazor.Orchestrator.Connector;
 
 internal class MfEmulatorConnector(IMfRepository repository, IEvents events) : IMfDebugConnector
 {
     private readonly IEnumerable<string> _styles = [];
-    private readonly IEnumerable<string> _scripts = new[] { "_content/Piral.Blazor.Orchestrator/debug.js" };
+    private readonly IEnumerable<string> _scripts = ["_content/Piral.Blazor.Orchestrator/debug.js"];
     private readonly IMfRepository _repository = repository;
     private readonly IEvents _events = events;
 
@@ -109,7 +110,8 @@ internal class MfEmulatorConnector(IMfRepository repository, IEvents events) : I
     private MfDebugState CollectCurrentState()
     {
         var state = new MfDebugState();
-        var assembly = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(m => m.DefinedTypes.Any(n => n.Name == "Program"));
+        var root = AssemblyLoadContext.All.First(m => m.Name == "root");
+        var assembly = root.Assemblies.FirstOrDefault(m => m.DefinedTypes.Any(n => n.Name == "Program"));
         var assemblyDetails = assembly?.GetName();
         state.App.Name = assemblyDetails?.Name ?? "Piral.Blazor.Server";
         state.App.Version = assemblyDetails?.Version?.ToString() ?? "0.0.0";
