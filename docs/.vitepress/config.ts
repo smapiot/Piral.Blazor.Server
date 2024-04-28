@@ -48,6 +48,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Overview", link: "/guides/" },
       { text: "Helpers", link: "/guides/helpers" },
       { text: "FAQs", link: "/guides/faq" },
+      { text: "Roadmap", link: "/guides/roadmap" },
     ],
   },
   {
