@@ -7,7 +7,7 @@ public interface ISnapshotService
 {
     Task<IEnumerable<string>> AvailableMicrofrontends();
 
-    Task UpdateMicrofrontends(IEnumerable<string> ids);
+    Task UpdateMicrofrontends(IEnumerable<NugetEntryWithConfig> entries);
 
     Task<JsonObject?> GetConfig(string id);
 

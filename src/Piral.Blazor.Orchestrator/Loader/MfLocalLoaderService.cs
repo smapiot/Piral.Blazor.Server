@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator.Loader;
@@ -19,21 +20,26 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
 
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)
     {
-        var ass = Assembly.GetEntryAssembly()!;
         var all = (Environment.GetEnvironmentVariable("PIRAL_BLAZOR_ALL_DEBUG_ASSEMBLIES") ?? "").Split(',');
-        var cfg = new JsonObject();
-
-        // set primary
-        await _repository.SetPackage(new LocalMicrofrontendPackage(ass, cfg, _container, _events, _data));
 
         foreach (var path in all)
         {
-            if (path != ass.Location)
-            {
-                // set other
-                var other = Assembly.LoadFrom(path);
-                await _repository.SetPackage(new LocalMicrofrontendPackage(other, cfg, _container, _events, _data));
-            }
+            var cfg = GetMicrofrontendConfig(path);
+            await _repository.SetPackage(new LocalMicrofrontendPackage(path, cfg, _container, _events, _data));
         }
+    }
+
+    private static JsonObject? GetMicrofrontendConfig(string path)
+    {
+        var dir = Path.GetDirectoryName(path)!;
+        var cfgPath = Path.Combine(dir, "config.json");
+
+        if (File.Exists(cfgPath))
+        {
+            var text = File.ReadAllText(cfgPath, Encoding.UTF8);
+            return JsonSerializer.Deserialize<JsonObject?>(text);
+        }
+
+        return null;
     }
 }

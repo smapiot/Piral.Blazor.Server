@@ -27,15 +27,10 @@ public class FsNugetSnapshotService : ISnapshotService
         _initialized = false;
     }
 
-    public Task UpdateMicrofrontends(IEnumerable<string> ids)
+    public Task UpdateMicrofrontends(IEnumerable<NugetEntryWithConfig> entries)
     {
         return EnqueueJob(() =>
         {
-            var entries = ids.Select(m =>
-            {
-                var (name, version) = m.GetIdentity();
-                return new NugetEntryWithConfig { Name = name, Version = version };
-            });
             _mfs.Clear();
             _mfs.AddRange(entries);
             return StoreMicrofrontendsSnapshot(entries);

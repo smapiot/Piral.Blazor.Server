@@ -10,7 +10,7 @@ public abstract class MicrofrontendPackage(string name, string version, JsonObje
 {
     private readonly RelatedMfAppService _app = new(name, version, config, events, data);
     private readonly IModuleContainerService _container = container;
-    private readonly AssemblyLoadContext _context = new ($"{name}@{version}", true);
+    private readonly AssemblyLoadContext _context = new MicrofrontendLoadContext($"{name}@{version}");
     public event EventHandler? PackageChanged;
 
     private IMfModule? _module;

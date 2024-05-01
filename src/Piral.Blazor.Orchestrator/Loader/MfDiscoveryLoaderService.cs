@@ -29,11 +29,10 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
     private void OnPackagesChanged(object? sender, EventArgs e)
     {
-        var ids = _repository.Packages
-            .Select(m => new NugetEntry { Name = m.Name, Version = m.Version })
-            .Select(m => m.MakePackageId());
+        var entries = _repository.Packages
+            .Select(m => new NugetEntryWithConfig { Name = m.Name, Version = m.Version, Config = m.Config });
 
-        _snapshot.UpdateMicrofrontends(ids);
+        _snapshot.UpdateMicrofrontends(entries);
     }
 
     public async Task LoadMicrofrontends(CancellationToken cancellationToken)

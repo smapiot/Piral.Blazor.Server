@@ -7,18 +7,13 @@ namespace Piral.Blazor.Orchestrator;
 
 internal class LocalMicrofrontendPackage : MicrofrontendPackage
 {
-    private readonly Assembly _assembly;
+    private readonly string _path;
     private readonly List<string> _contentRoots = [];
 
-    public LocalMicrofrontendPackage(Assembly assembly, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
-        : this(assembly, assembly.GetName(), config, container, events, data)
+    public LocalMicrofrontendPackage(string path, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
+        : base(Path.GetFileNameWithoutExtension(path), "0.0.0", config, container, events, data)
     {
-    }
-
-    private LocalMicrofrontendPackage(Assembly assembly, AssemblyName assemblyName, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
-        : base(assemblyName.Name!, assemblyName.Version!.ToString(), config, container, events, data)
-    {
-        _assembly = assembly;
+        _path = path;
     }
 
     protected override Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
@@ -29,13 +24,13 @@ internal class LocalMicrofrontendPackage : MicrofrontendPackage
 
     protected override async Task OnInitialized()
     {
-        var infos = Path.ChangeExtension(_assembly.Location, ".staticwebassets.runtime.json");
+        var infos = Path.ChangeExtension(_path, ".staticwebassets.runtime.json");
         using var fs = File.OpenRead(infos);
         var assets = await JsonSerializer.DeserializeAsync<StaticWebAssets>(fs);
         _contentRoots.AddRange(assets?.ContentRoots ?? Enumerable.Empty<string>());
     }
 
-    protected override Assembly? GetAssembly() => Context.LoadFromAssemblyPath(_assembly.Location);
+    protected override Assembly? GetAssembly() => Context.LoadFromAssemblyPath(_path);
 
     public override Task<Stream?> GetFile(string path)
     {
