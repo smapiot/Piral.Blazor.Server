@@ -3,10 +3,12 @@
 ## 0.5.0 (tbd)
 
 - Fixed issue with broken assets
+- Fixed emulator running debugged micro frontend assemblies in default context
 - Added `PiralOptions` to configure behavior
 - Added `IsolatedAssemblies` option
 - Added support for relative paths in `AppShell` of SDK (#2)
 - Added new documentation page (blazor.piral.io)
+- Added support for `IConfiguration` of micro frontends
 - Added roadmap (#3)
 
 ## 0.4.1 (February 16, 2024)

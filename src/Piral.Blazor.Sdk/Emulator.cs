@@ -113,7 +113,9 @@ public static class Emulator
             }
         }
 
+#pragma warning disable CS8603 // Possible null reference return.
         return null;
+#pragma warning restore CS8603 // Possible null reference return.
     }
 
     private static string TryResolveLocalPackage(string root, string name)

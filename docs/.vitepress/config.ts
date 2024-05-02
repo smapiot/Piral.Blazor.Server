@@ -19,6 +19,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Emulator", link: "/getting-started/server/emulator" },
       { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
       { text: "Publishing", link: "/getting-started/server/publishing" },
+      { text: "Runtime Configuration", link: "/getting-started/server/environment" },
     ],
   },
   {
@@ -29,7 +30,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Micro Frontend", link: "/getting-started/spa/microfrontend" },
       { text: "Debugging", link: "/getting-started/spa/debugging" },
       { text: "Publishing", link: "/getting-started/spa/publishing" },
-      { text: "Configuration", link: "/getting-started/spa/configuration" },
+      { text: "Build Configuration", link: "/getting-started/spa/configuration" },
       { text: "Dependency Injection", link: "/getting-started/spa/dependency-injection" },
       { text: "Page Components", link: "/getting-started/spa/pages" },
       { text: "Extension Components", link: "/getting-started/spa/extensions" },
@@ -39,6 +40,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Parameters", link: "/getting-started/spa/parameters" },
       { text: "Pilet Service", link: "/getting-started/spa/pilet-service" },
       { text: "Localization", link: "/getting-started/spa/localization" },
+      { text: "Runtime Configuration", link: "/getting-started/server/environment" },
     ],
   },
   {
