@@ -1,25 +1,20 @@
 ﻿using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class LocalMicrofrontendPackage : MicrofrontendPackage
+internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModuleContainerService container, IEvents events, IData data) :
+    MicrofrontendPackage(Path.GetFileNameWithoutExtension(path), "0.0.0", config, container, events, data)
 {
-    private readonly string _path;
+    private readonly string _path = path;
     private readonly List<string> _contentRoots = [];
 
-    public LocalMicrofrontendPackage(string path, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
-        : base(Path.GetFileNameWithoutExtension(path), "0.0.0", config, container, events, data)
+    protected override Assembly? ResolveAssembly(AssemblyName assemblyName)
     {
-        _path = path;
-    }
-
-    protected override Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName)
-    {
-        //TODO
-        return null;
+        var dllName = assemblyName.Name;
+        var basePath = Path.GetDirectoryName(_path)!;
+        return Context.LoadFromAssemblyPath(Path.Combine(basePath, $"{dllName}.dll"));
     }
 
     protected override async Task OnInitialized()

@@ -34,6 +34,19 @@ public static class Emulator
         };
 
         var ass = root.LoadFromAssemblyPath(path);
+        var assName = ass.GetName().Name;
+
+        AssemblyLoadContext.Default.Resolving += (_, assemblyName) =>
+        {
+            // In general we just keep default; but the app shell we also resolve here
+            if (assemblyName.Name == assName)
+            {
+                return ass;
+            }
+
+            return null;
+        };
+
         var prog = ass.DefinedTypes.First(m => m.Name == "Program");
         var method = prog.GetMethods(BindingFlags.Static | BindingFlags.NonPublic).First();
 

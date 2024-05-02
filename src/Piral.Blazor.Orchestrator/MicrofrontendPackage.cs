@@ -6,12 +6,19 @@ using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
-public abstract class MicrofrontendPackage(string name, string version, JsonObject? config, IModuleContainerService container, IEvents events, IData data) : IDisposable
+public abstract class MicrofrontendPackage : IDisposable
 {
-    private readonly RelatedMfAppService _app = new(name, version, config, events, data);
-    private readonly IModuleContainerService _container = container;
-    private readonly AssemblyLoadContext _context = new MicrofrontendLoadContext($"{name}@{version}");
+    private readonly RelatedMfAppService _app;
+    private readonly IModuleContainerService _container;
+    private readonly MicrofrontendLoadContext _context;
     public event EventHandler? PackageChanged;
+
+    public MicrofrontendPackage(string name, string version, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
+    {
+        _app = new (name, version, config, events, data);
+        _container = container;
+        _context = new MicrofrontendLoadContext($"{name}@{version}", ResolveAssembly);   
+    }
 
     private IMfModule? _module;
     private bool _disabled = false;
@@ -69,8 +76,6 @@ public abstract class MicrofrontendPackage(string name, string version, JsonObje
 
     public async Task Init()
     {
-        _context.Resolving += LoadMissingAssembly;
-
         await OnInitializing();
 
         var assembly = GetAssembly();
@@ -85,7 +90,7 @@ public abstract class MicrofrontendPackage(string name, string version, JsonObje
         await OnInitialized();
     }
 
-    protected abstract Assembly? LoadMissingAssembly(AssemblyLoadContext _, AssemblyName assemblyName);
+    protected abstract Assembly? ResolveAssembly(AssemblyName assemblyName);
 
     protected virtual Task OnInitializing() => Task.CompletedTask;
 
