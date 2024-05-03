@@ -39,7 +39,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Provider Components", link: "/getting-started/spa/providers" },
       { text: "Root Component", link: "/getting-started/spa/root" },
       { text: "Parameters", link: "/getting-started/spa/parameters" },
-      { text: "Runtime Configuration", link: "/getting-started/server/environment" },
+      { text: "Runtime Configuration", link: "/getting-started/spa/environment" },
       { text: "Pilet Service", link: "/getting-started/spa/pilet-service" },
       { text: "Localization", link: "/getting-started/spa/localization" },
       { text: "HTTP Injector", link: "/getting-started/spa/http" },
@@ -59,7 +59,9 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     text: "Examples",
     collapsed: true,
     items: [
-      { text: "Introduction", link: "/examples/" },
+      { text: "Overview", link: "/examples/" },
+      { text: "Server: Tractor Shop", link: "/examples/server/tractor-shop" },
+      { text: "SPA: Tractor Shop", link: "/examples/spa/tractor-shop" },
     ],
   },
 ];
