@@ -20,6 +20,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Micro Frontend", link: "/getting-started/server/microfrontend" },
       { text: "Publishing", link: "/getting-started/server/publishing" },
       { text: "Runtime Configuration", link: "/getting-started/server/environment" },
+      { text: "MF Service", link: "/getting-started/server/mf-service" },
     ],
   },
   {
@@ -38,9 +39,10 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
       { text: "Provider Components", link: "/getting-started/spa/providers" },
       { text: "Root Component", link: "/getting-started/spa/root" },
       { text: "Parameters", link: "/getting-started/spa/parameters" },
+      { text: "Runtime Configuration", link: "/getting-started/server/environment" },
       { text: "Pilet Service", link: "/getting-started/spa/pilet-service" },
       { text: "Localization", link: "/getting-started/spa/localization" },
-      { text: "Runtime Configuration", link: "/getting-started/server/environment" },
+      { text: "HTTP Injector", link: "/getting-started/spa/http" },
     ],
   },
   {

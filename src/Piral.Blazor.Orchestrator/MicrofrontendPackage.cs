@@ -118,7 +118,7 @@ public abstract class MicrofrontendPackage : IDisposable
     {
         private readonly IEvents _events = events;
         private readonly IData _data = data;
-        private readonly MfDetails _meta = new () { Name = name, Version = version };
+        private readonly MfDetails _meta = new () { Name = name, Version = version, Config = config ?? [] };
 
         public MfDetails Meta => _meta;
 

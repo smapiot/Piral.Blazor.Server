@@ -24,6 +24,7 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
             {
                 Name = assName.Name!,
                 Version = assName.Version!.ToString(),
+                Config = app.Meta.Config,
             };
             var pilet = new WrappedMfService(app, meta);
 

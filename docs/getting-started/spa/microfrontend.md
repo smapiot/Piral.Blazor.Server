@@ -31,3 +31,17 @@ In this case, follow these steps:
 5. Build the project. The first time you do this, this can take some time as it will fully scaffold the pilet.
 
 If you run the solution using `F5` the `Piral.Blazor.DevServer` will start the Piral CLI under the hood. This allows you to not only use .NET Hot-Reload, but also replace the pilets on demand.
+
+## Global vs Local Pilet
+
+By default, a pilet is treated as an isolated assembly. This makes sense, as it potentially was also developed in isolation and should not conflict with another micro frontend. Nevertheless, there are cases where you potentially want to break this isolation, e.g.:
+
+- When providing some services that can be used from other pilets
+- When manipulating global settings or configurations
+- When sharing dependencies that other pilets should not have to load on their own
+
+For these cases (and others) another type of pilet has been introduced: *global* pilets.
+
+While *local* pilets will run in their own context, loading their own dependencies, and specifying their own services, *global* pilets are run in the default context - sharing their dependencies with the rest of the application and introducing services for all pilets.
+
+Global pilets are also built without optimizations - this is done to prevent issues that might occur when shared dependencies are trimmed and therefore no longer working as anticipated by other pilets.
