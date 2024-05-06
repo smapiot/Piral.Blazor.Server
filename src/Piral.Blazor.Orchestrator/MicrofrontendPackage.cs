@@ -13,7 +13,7 @@ public abstract class MicrofrontendPackage : IDisposable
     private readonly MicrofrontendLoadContext _context;
     public event EventHandler? PackageChanged;
 
-    public MicrofrontendPackage(NugetEntryWithConfig entry, IModuleContainerService container, IEvents events, IData data)
+    public MicrofrontendPackage(MfPackageMetadata entry, IModuleContainerService container, IEvents events, IData data)
     {
         _app = new (entry, events, data);
         _container = container;
@@ -114,7 +114,7 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public abstract Task<Stream?> GetFile(string path);
 
-    sealed class RelatedMfAppService(NugetEntryWithConfig entry, IEvents events, IData data) : IMfAppService
+    sealed class RelatedMfAppService(MfPackageMetadata entry, IEvents events, IData data) : IMfAppService
     {
         private readonly IEvents _events = events;
         private readonly IData _data = data;

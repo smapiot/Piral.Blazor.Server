@@ -9,5 +9,5 @@ public interface INugetService
 
     IEnumerable<PackageDependency> ListDependencies(PackageArchiveReader reader);
 
-    Task<IEnumerable<NugetEntry>> RetrieveDependencies(string packageName, string packageVersion);
+    Task<IEnumerable<PackageMetadata>> RetrieveDependencies(string packageName, string packageVersion);
 }

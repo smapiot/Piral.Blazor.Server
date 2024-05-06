@@ -10,9 +10,9 @@ namespace Piral.Blazor.Orchestrator;
 public class FsNugetSnapshotService : ISnapshotService
 {
     private readonly ConcurrentDictionary<string, PackageArchiveReader> _db = new();
-    private readonly ConcurrentDictionary<string, IEnumerable<NugetEntry>> _deps = new();
+    private readonly ConcurrentDictionary<string, IEnumerable<PackageMetadata>> _deps = new();
     private readonly ConcurrentQueue<Func<Task>> _jobs = new();
-    private readonly List<NugetEntryWithConfig> _mfs = [];
+    private readonly List<MfPackageMetadata> _mfs = [];
 
     private readonly INugetService _nuget;
     private readonly DirectoryInfo _snapshot;
@@ -27,7 +27,7 @@ public class FsNugetSnapshotService : ISnapshotService
         _initialized = false;
     }
 
-    public Task UpdateMicrofrontends(IEnumerable<NugetEntryWithConfig> entries)
+    public Task UpdateMicrofrontends(IEnumerable<MfPackageMetadata> entries)
     {
         return EnqueueJob(() =>
         {
@@ -95,7 +95,7 @@ public class FsNugetSnapshotService : ISnapshotService
         return result;
     }
 
-    public async Task<IEnumerable<NugetEntry>> ListDependencies(string id)
+    public async Task<IEnumerable<PackageMetadata>> ListDependencies(string id)
     {
         if (!_initialized)
         {
@@ -130,9 +130,9 @@ public class FsNugetSnapshotService : ISnapshotService
             if (id == "_" && ext == ".json")
             {
                 using var fs = file.OpenRead();
-                var result = await JsonSerializer.DeserializeAsync<List<NugetEntryWithConfig>>(fs);
+                var result = await JsonSerializer.DeserializeAsync<List<MfPackageMetadata>>(fs);
                 _mfs.Clear();
-                _mfs.AddRange(result ?? Enumerable.Empty<NugetEntryWithConfig>());
+                _mfs.AddRange(result ?? Enumerable.Empty<MfPackageMetadata>());
             }
             else if (ext == ".nupkg" && !_db.ContainsKey(id))
             {
@@ -146,13 +146,13 @@ public class FsNugetSnapshotService : ISnapshotService
             else if (ext == ".json" && !_deps.ContainsKey(id))
             {
                 using var fs = file.OpenRead();
-                var result = await JsonSerializer.DeserializeAsync<List<NugetEntry>>(fs);
-                _deps.TryAdd(id, result ?? Enumerable.Empty<NugetEntry>());
+                var result = await JsonSerializer.DeserializeAsync<List<PackageMetadata>>(fs);
+                _deps.TryAdd(id, result ?? Enumerable.Empty<PackageMetadata>());
             }
         }
     }
 
-    private async Task StoreMicrofrontendsSnapshot(IEnumerable<NugetEntryWithConfig> microfrontends)
+    private async Task StoreMicrofrontendsSnapshot(IEnumerable<MfPackageMetadata> microfrontends)
     {
         var fn = $"_.json";
         var target = Path.Combine(_snapshot.FullName, fn);
@@ -167,7 +167,7 @@ public class FsNugetSnapshotService : ISnapshotService
         await reader.CopyNupkgAsync(target, CancellationToken.None);
     }
 
-    private async Task StoreDependenciesSnapshot(string id, IEnumerable<NugetEntry> dependencies)
+    private async Task StoreDependenciesSnapshot(string id, IEnumerable<PackageMetadata> dependencies)
     {
         var fn = $"{id}.json";
         var target = Path.Combine(_snapshot.FullName, fn);

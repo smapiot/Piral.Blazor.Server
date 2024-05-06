@@ -82,7 +82,7 @@ internal class NugetService : INugetService
         return null;
     }
 
-    public async Task<IEnumerable<NugetEntry>> RetrieveDependencies(string packageName, string packageVersion)
+    public async Task<IEnumerable<PackageMetadata>> RetrieveDependencies(string packageName, string packageVersion)
     {
         var resolver = new PackageResolver();
 
@@ -102,7 +102,7 @@ internal class NugetService : INugetService
             _repositories.Select(r => r.PackageSource),
             _logger);
 
-        return resolver.Resolve(resolverContext, CancellationToken.None).Select(m => new NugetEntry
+        return resolver.Resolve(resolverContext, CancellationToken.None).Select(m => new PackageMetadata
         {
             Name = m.Id,
             Version = m.Version.ToNormalizedString(),

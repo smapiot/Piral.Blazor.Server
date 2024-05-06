@@ -2,6 +2,6 @@
 
 public interface IMfPackageService
 {
-    Task<MicrofrontendPackage> LoadMicrofrontend(NugetEntryWithConfig entry);
+    Task<MicrofrontendPackage> LoadMicrofrontend(MfPackageMetadata entry);
 }
 

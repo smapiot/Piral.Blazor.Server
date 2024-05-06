@@ -19,7 +19,7 @@ public class MfSnapshotLoaderService(IMfRepository repository, IMfPackageService
         {
             var (name, version) = id.GetIdentity();
             var config = await _snapshot.GetConfig(id);
-            var mf = await _package.LoadMicrofrontend(new NugetEntryWithConfig
+            var mf = await _package.LoadMicrofrontend(new MfPackageMetadata
             {
                 Name = name,
                 Version = version,

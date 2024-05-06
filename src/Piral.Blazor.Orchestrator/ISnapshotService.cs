@@ -7,11 +7,11 @@ public interface ISnapshotService
 {
     Task<IEnumerable<string>> AvailableMicrofrontends();
 
-    Task UpdateMicrofrontends(IEnumerable<NugetEntryWithConfig> entries);
+    Task UpdateMicrofrontends(IEnumerable<MfPackageMetadata> entries);
 
     Task<JsonObject?> GetConfig(string id);
 
     Task<PackageArchiveReader?> LoadPackage(string id);
 
-    Task<IEnumerable<NugetEntry>> ListDependencies(string id);
+    Task<IEnumerable<PackageMetadata>> ListDependencies(string id);
 }

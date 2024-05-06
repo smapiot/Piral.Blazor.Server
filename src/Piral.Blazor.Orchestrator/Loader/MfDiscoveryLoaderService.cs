@@ -15,7 +15,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private readonly ISnapshotService _snapshot;
     private readonly string _feedUrl;
     private readonly string _wsUrl;
-    private readonly List<NugetEntryWithConfig> _current = [];
+    private readonly List<MfPackageMetadata> _current = [];
 
     public MfDiscoveryLoaderService(IHttpClientFactory client, IMfRepository repository, IMfPackageService package, ISnapshotService snapshot, IConfiguration configuration)
     {
@@ -34,7 +34,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private void OnPackagesChanged(object? sender, EventArgs e)
     {
         var entries = _repository.Packages
-            .Select(m => new NugetEntryWithConfig { Name = m.Name, Version = m.Version, Config = m.Config });
+            .Select(m => new MfPackageMetadata { Name = m.Name, Version = m.Version, Config = m.Config });
 
         _snapshot.UpdateMicrofrontends(entries);
     }
@@ -64,7 +64,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private async Task LoadMicrofrontendsFromDiscoveryUrl(string feedUrl, CancellationToken cancellationToken)
     {
         var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(feedUrl, cancellationToken);
-        var next = new List<NugetEntryWithConfig>();
+        var next = new List<MfPackageMetadata>();
 
         if (response?.MicroFrontends is not null)
         {
@@ -77,7 +77,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
                 {
                     var name = data?.Extras?.Id ?? item.Key;
                     var config = data?.Extras?.Config;
-                    next.Add(new NugetEntryWithConfig
+                    next.Add(new MfPackageMetadata
                     {
                         Config = config,
                         Name = name,
@@ -101,15 +101,15 @@ public class MfDiscoveryLoaderService : IMfLoaderService
         }
     }
 
-    private (IEnumerable<NugetEntryWithConfig>, IEnumerable<NugetEntryWithConfig>) GetDiff(List<NugetEntryWithConfig> next)
+    private (IEnumerable<MfPackageMetadata>, IEnumerable<MfPackageMetadata>) GetDiff(List<MfPackageMetadata> next)
     {
         if (_current.Count == 0)
         {
-            return (next, Enumerable.Empty<NugetEntryWithConfig>());
+            return (next, Enumerable.Empty<MfPackageMetadata>());
         }
 
-        var removed = new List<NugetEntryWithConfig>();
-        var updated = new List<NugetEntryWithConfig>(next);
+        var removed = new List<MfPackageMetadata>();
+        var updated = new List<MfPackageMetadata>(next);
 
         for (var i = _current.Count - 1; i >= 0; i--)
         {

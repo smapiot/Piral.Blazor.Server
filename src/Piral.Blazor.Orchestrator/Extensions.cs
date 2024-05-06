@@ -13,7 +13,7 @@ internal static class Extensions
         return (front, back);
     }
 
-    public static string MakePackageId(this NugetEntry entry) => $"{entry.Name}@{entry.Version}";
+    public static string MakePackageId(this PackageMetadata entry) => $"{entry.Name}@{entry.Version}";
 
     public static IEnumerable<Type> GetTypesWithAttributes(this Assembly assembly, IReadOnlyCollection<Type> attributeTypes) =>
         assembly?.GetTypes().Where(m => m.HasAnyAttribute(attributeTypes)) ?? [];
