@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator.Loader;
 
@@ -14,6 +15,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private readonly ISnapshotService _snapshot;
     private readonly string _feedUrl;
     private readonly string _wsUrl;
+    private readonly List<NugetEntryWithConfig> _current = [];
 
     public MfDiscoveryLoaderService(IHttpClientFactory client, IMfRepository repository, IMfPackageService package, ISnapshotService snapshot, IConfiguration configuration)
     {
@@ -60,6 +62,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     private async Task LoadMicrofrontendsFromDiscoveryUrl(string feedUrl, CancellationToken cancellationToken)
     {
         var response = await _client.GetFromJsonAsync<MfDiscoveryServiceResponse>(feedUrl, cancellationToken);
+        var next = new List<NugetEntryWithConfig>();
 
         if (response?.MicroFrontends is not null)
         {
@@ -72,12 +75,68 @@ public class MfDiscoveryLoaderService : IMfLoaderService
                 {
                     var name = data?.Extras?.Id ?? item.Key;
                     var config = data?.Extras?.Config;
-                    var mf = await _package.LoadMicrofrontend(name, version, config);
-                    await _repository.SetPackage(mf);
+                    next.Add(new NugetEntryWithConfig
+                    {
+                        Config = config,
+                        Name = name,
+                        Version = version,
+                    });
                 }
             }
         }
+
+        var (updated, removed) = GetDiff(next);
+
+        foreach (var entry in removed)
+        {
+            await _repository.DeletePackage(entry.Name);
+        }
+
+        foreach (var entry in updated)
+        {
+            var mf = await _package.LoadMicrofrontend(entry.Name, entry.Version, entry.Config);
+            await _repository.SetPackage(mf);
+        }
     }
+
+    private (IEnumerable<NugetEntryWithConfig>, IEnumerable<NugetEntryWithConfig>) GetDiff(List<NugetEntryWithConfig> next)
+    {
+        if (_current.Count == 0)
+        {
+            return (next, Enumerable.Empty<NugetEntryWithConfig>());
+        }
+
+        var removed = new List<NugetEntryWithConfig>();
+        var updated = new List<NugetEntryWithConfig>(next);
+
+        for (var i = _current.Count - 1; i >= 0; i--)
+        {
+            var currentEntry = _current[i];
+            var matchingEntry = next.FirstOrDefault(m => m.Name == currentEntry.Name);
+
+            if (matchingEntry is null)
+            {
+                removed.Add(currentEntry);
+                _current.RemoveAt(i);
+            }
+            else if (matchingEntry.Version != currentEntry.Version)
+            {
+                _current[i] = matchingEntry;
+            }
+            else if (IsDifferent(matchingEntry.Config, currentEntry.Config))
+            {
+                _current[i] = matchingEntry;
+            }
+            else
+            {
+                updated.Remove(matchingEntry);
+            }
+        }
+
+        return (updated, removed);
+    }
+
+    private static bool IsDifferent(JsonObject? config1, JsonObject? config2) => JsonObject.DeepEquals(config1, config2);
 
     public async void ConnectMicrofrontends(CancellationToken ct)
     {
