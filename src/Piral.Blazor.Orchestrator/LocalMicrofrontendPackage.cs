@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 namespace Piral.Blazor.Orchestrator;
 
 internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModuleContainerService container, IEvents events, IData data) :
-    MicrofrontendPackage(Path.GetFileNameWithoutExtension(path), "0.0.0", config, container, events, data)
+    MicrofrontendPackage(new NugetEntryWithConfig { Name = Path.GetFileNameWithoutExtension(path), Version = "0.0.0", Config = config }, container, events, data)
 {
     private const string target = "net8.0";
     private readonly string _path = path;

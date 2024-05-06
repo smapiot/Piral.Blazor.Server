@@ -11,20 +11,15 @@ internal class MfPackageService(IPiralConfig config, IModuleContainerService con
     private readonly IEvents _events = events;
     private readonly IData _data = data;
 
-    public async Task<MicrofrontendPackage> LoadMicrofrontend(string name, string version, JsonObject? config)
+    public async Task<MicrofrontendPackage> LoadMicrofrontend(NugetEntryWithConfig entry)
     {
-        var packages = await CollectPackages(name, version);
-        return new NugetMicrofrontendPackage(name, version, config, packages, _config, _container, _events, _data);
+        var packages = await CollectPackages(entry);
+        return new NugetMicrofrontendPackage(entry, packages, _config, _container, _events, _data);
     }
 
-    private async Task<List<PackageArchiveReader>> CollectPackages(string name, string version)
+    private async Task<List<PackageArchiveReader>> CollectPackages(NugetEntryWithConfig entry)
     {
-        var mf = new NugetEntry
-        {
-            Name = name,
-            Version = version,
-        };
-        var id = mf.MakePackageId();
+        var id = entry.MakePackageId();
         var dependencies = await _snapshot.ListDependencies(id);
         var result = new List<PackageArchiveReader>();
 

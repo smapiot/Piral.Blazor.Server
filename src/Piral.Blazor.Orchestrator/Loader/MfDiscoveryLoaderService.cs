@@ -19,12 +19,14 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
     public MfDiscoveryLoaderService(IHttpClientFactory client, IMfRepository repository, IMfPackageService package, ISnapshotService snapshot, IConfiguration configuration)
     {
+        var configuredFeedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl");
+        var configuredWsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl");
         _client = client.CreateClient();
         _repository = repository;
         _snapshot = snapshot;
         _package = package;
-        _feedUrl = configuration.GetValue<string>("Microfrontends:DiscoveryInfoUrl") ?? "https://feed.piral.cloud/api/v1/microfrontends/empty";
-        _wsUrl = configuration.GetValue<string>("Microfrontends:DiscoveryUpdateUrl") ?? "wss://feed.piral.cloud/api/v1/pilet/empty";
+        _feedUrl = configuredFeedUrl ?? "https://feed.piral.cloud/api/v1/microfrontends/empty";
+        _wsUrl = configuredWsUrl ?? "wss://feed.piral.cloud/api/v1/pilet/empty";
 
         repository.PackagesChanged += OnPackagesChanged;
     }
@@ -41,7 +43,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
     {
         if (!string.IsNullOrEmpty(_feedUrl))
         {
-            // This is a NuGet feed
+            // This is most likely a NuGet feed
             if (_feedUrl.EndsWith("/index.json"))
             {
                 var response = await _client.GetFromJsonAsync<MfNugetServiceResponse>(_feedUrl, cancellationToken);
@@ -94,7 +96,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
 
         foreach (var entry in updated)
         {
-            var mf = await _package.LoadMicrofrontend(entry.Name, entry.Version, entry.Config);
+            var mf = await _package.LoadMicrofrontend(entry);
             await _repository.SetPackage(mf);
         }
     }

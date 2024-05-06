@@ -13,11 +13,11 @@ public abstract class MicrofrontendPackage : IDisposable
     private readonly MicrofrontendLoadContext _context;
     public event EventHandler? PackageChanged;
 
-    public MicrofrontendPackage(string name, string version, JsonObject? config, IModuleContainerService container, IEvents events, IData data)
+    public MicrofrontendPackage(NugetEntryWithConfig entry, IModuleContainerService container, IEvents events, IData data)
     {
-        _app = new (name, version, config, events, data);
+        _app = new (entry, events, data);
         _container = container;
-        _context = new MicrofrontendLoadContext($"{name}@{version}", ResolveAssembly);   
+        _context = new MicrofrontendLoadContext($"{entry.Name}@{entry.Version}", ResolveAssembly);   
     }
 
     private IMfModule? _module;
@@ -114,11 +114,11 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public abstract Task<Stream?> GetFile(string path);
 
-    sealed class RelatedMfAppService(string name, string version, JsonObject? config, IEvents events, IData data) : IMfAppService
+    sealed class RelatedMfAppService(NugetEntryWithConfig entry, IEvents events, IData data) : IMfAppService
     {
         private readonly IEvents _events = events;
         private readonly IData _data = data;
-        private readonly MfDetails _meta = new () { Name = name, Version = version, Config = config ?? [] };
+        private readonly MfDetails _meta = new () { Name = entry.Name, Version = entry.Version, Config = entry.Config ?? [] };
 
         public MfDetails Meta => _meta;
 
@@ -128,11 +128,11 @@ public abstract class MicrofrontendPackage : IDisposable
 
         public List<string> Scripts { get; } = [];
 
-        public string Name { get; } = name;
+        public string Name { get; } = entry.Name;
 
-        public string Version { get; } = version;
+        public string Version { get; } = entry.Version;
 
-        public JsonObject? Config { get; } = config;
+        public JsonObject? Config { get; } = entry.Config;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {

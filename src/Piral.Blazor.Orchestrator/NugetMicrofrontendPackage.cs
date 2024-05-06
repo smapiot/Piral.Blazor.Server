@@ -5,8 +5,8 @@ using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class NugetMicrofrontendPackage(string name, string version, JsonObject? mfConfig, List<PackageArchiveReader> packages, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) :
-    MicrofrontendPackage(name, version, mfConfig, container, events, data)
+internal class NugetMicrofrontendPackage(NugetEntryWithConfig entry, List<PackageArchiveReader> packages, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) :
+    MicrofrontendPackage(entry, container, events, data)
 {
     private const string target = "net8.0";
     private readonly IPiralConfig _config = config;
