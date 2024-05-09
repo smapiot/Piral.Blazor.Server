@@ -3,11 +3,11 @@ using System.Runtime.Loader;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class MicrofrontendLoadContext(string name, Func<AssemblyName, Assembly?> resolve) : AssemblyLoadContext(name, true)
+internal class MicrofrontendLoadContext(string name, Func<string, Assembly?> resolve) : AssemblyLoadContext(name, true)
 {
     private readonly AssemblyLoadContext _root = All.FirstOrDefault(m => m.Name == "root") ?? Default;
 
-    public readonly Func<AssemblyName, Assembly?> _resolve = resolve;
+    public readonly Func<string, Assembly?> _resolve = resolve;
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
@@ -32,7 +32,7 @@ internal class MicrofrontendLoadContext(string name, Func<AssemblyName, Assembly
         }
 
         // Let's find it via the custom resolve
-        return _resolve(assemblyName);
+        return _resolve($"{assemblyName.Name}.dll");
     }
 
     private static Assembly? GetExisting(IEnumerable<Assembly> assemblies, AssemblyName name)

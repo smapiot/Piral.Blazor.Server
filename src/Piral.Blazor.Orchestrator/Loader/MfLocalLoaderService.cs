@@ -1,15 +1,12 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿namespace Piral.Blazor.Orchestrator.Loader;
 
-namespace Piral.Blazor.Orchestrator.Loader;
-
-internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IModuleContainerService container, IEvents events, IData data) : IMfLoaderService
+internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) : IMfLoaderService
     where T : class, IMfLoaderService
 {
     private readonly T _originalLoader = originalLoader;
     private readonly IMfRepository _repository = repository;
     private readonly IModuleContainerService _container = container;
+    private readonly IPiralConfig _config = config;
     private readonly IEvents _events = events;
     private readonly IData _data = data;
 
@@ -24,22 +21,7 @@ internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repositor
 
         foreach (var path in all)
         {
-            var cfg = GetMicrofrontendConfig(path);
-            await _repository.SetPackage(new LocalMicrofrontendPackage(path, cfg, _container, _events, _data));
+            await _repository.SetPackage(new LocalMicrofrontendPackage(path, _config, _container, _events, _data));
         }
-    }
-
-    private static JsonObject? GetMicrofrontendConfig(string path)
-    {
-        var dir = Path.GetDirectoryName(path)!;
-        var cfgPath = Path.Combine(dir, "config.json");
-
-        if (File.Exists(cfgPath))
-        {
-            var text = File.ReadAllText(cfgPath, Encoding.UTF8);
-            return JsonSerializer.Deserialize<JsonObject?>(text);
-        }
-
-        return null;
     }
 }

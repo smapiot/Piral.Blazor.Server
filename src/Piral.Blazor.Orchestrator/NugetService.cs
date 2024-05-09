@@ -15,7 +15,6 @@ namespace Piral.Blazor.Orchestrator;
 internal class NugetService : INugetService
 {
     private readonly ILogger _logger = NullLogger.Instance;
-    private readonly NuGetFramework _currentFramework = NuGetFramework.Parse("net8.0");
     private readonly FrameworkReducer _frameworkReducer = new();
 
     private readonly SourceCacheContext _cache = new();
@@ -51,7 +50,7 @@ internal class NugetService : INugetService
     {
         var dependencyGroups = reader.GetPackageDependencies();
         var frameworks = dependencyGroups.Select(m => m.TargetFramework);
-        var selectedFramework = _frameworkReducer.GetNearest(_currentFramework, frameworks);
+        var selectedFramework = _frameworkReducer.GetNearest(Constants.CurrentFramework, frameworks);
 
         if (selectedFramework is not null)
         {
@@ -116,7 +115,7 @@ internal class NugetService : INugetService
             await Parallel.ForEachAsync(_repositories, async (repository, cancellationToken) =>
             {
                 var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
-                var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, _currentFramework, _cache, _logger, cancellationToken);
+                var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, Constants.CurrentFramework, _cache, _logger, cancellationToken);
 
                 if (dependencyInfo is not null && dependencies.TryAdd(dependencyInfo, 1))
                 {

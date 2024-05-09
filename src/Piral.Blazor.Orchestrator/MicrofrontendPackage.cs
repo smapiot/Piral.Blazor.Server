@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using NuGet.Frameworks;
 using Piral.Blazor.Shared;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -10,12 +11,14 @@ public abstract class MicrofrontendPackage : IDisposable
 {
     private readonly RelatedMfAppService _app;
     private readonly IModuleContainerService _container;
+    private readonly IPiralConfig _config;
     private readonly MicrofrontendLoadContext _context;
     public event EventHandler? PackageChanged;
 
-    public MicrofrontendPackage(MfPackageMetadata entry, IModuleContainerService container, IEvents events, IData data)
+    public MicrofrontendPackage(MfPackageMetadata entry, IPiralConfig config, IModuleContainerService container, IEvents events, IData data)
     {
         _app = new (entry, events, data);
+        _config = config;
         _container = container;
         _context = new MicrofrontendLoadContext($"{entry.Name}@{entry.Version}", ResolveAssembly);   
     }
@@ -90,15 +93,25 @@ public abstract class MicrofrontendPackage : IDisposable
         await OnInitialized();
     }
 
-    protected abstract Assembly? ResolveAssembly(AssemblyName assemblyName);
+    protected abstract Assembly? ResolveAssembly(string dll);
 
-    protected virtual Task OnInitializing() => Task.CompletedTask;
+    protected virtual Task OnInitializing()
+    {
+        foreach (var assembly in _config.IsolatedAssemblies)
+        {
+            ResolveAssembly(assembly);
+        }
+
+        return Task.CompletedTask;
+    }
 
     protected virtual Task OnInitialized() => Task.CompletedTask;
 
     protected abstract string GetCssName();
 
     protected abstract Assembly? GetAssembly();
+
+    protected static bool IsCompatible(NuGetFramework framework) => DefaultCompatibilityProvider.Instance.IsCompatible(Constants.CurrentFramework, framework);
 
     public async Task Destroy()
     {

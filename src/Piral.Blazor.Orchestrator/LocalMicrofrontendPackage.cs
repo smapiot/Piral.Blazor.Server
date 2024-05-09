@@ -1,19 +1,17 @@
-﻿using NuGet.Frameworks;
-using NuGet.Packaging;
+﻿using NuGet.Packaging;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModuleContainerService container, IEvents events, IData data) :
-    MicrofrontendPackage(new MfPackageMetadata { Name = Path.GetFileNameWithoutExtension(path), Version = "0.0.0", Config = config }, container, events, data)
+internal class LocalMicrofrontendPackage(string path, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) :
+    MicrofrontendPackage(MakePackage(path), config, container, events, data)
 {
-    private const string target = "net8.0";
     private readonly string _path = path;
     private readonly List<string> _contentRoots = [];
-    private readonly Dictionary<string, DependencyDescription> _deps = [];
     private readonly List<PackageArchiveReader> _packages = [];
 
     private Assembly? LoadAssembly(PackageArchiveReader package, string path)
@@ -28,37 +26,53 @@ internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModul
         return null;
     }
 
-    protected override Assembly? ResolveAssembly(AssemblyName assemblyName)
+    private static MfPackageMetadata MakePackage(string path)
     {
-        var dllName = assemblyName.Name!;
-        var version = assemblyName.Version?.ToString()!;
-        return ResolveAssembly(dllName, version);
+        var name = Path.GetFileNameWithoutExtension(path);
+        var config = GetMicrofrontendConfig(path);
+        return new MfPackageMetadata { Name = name, Version = "0.0.0", Config = config };
     }
 
-    private Assembly? ResolveAssembly(string name, string version)
+    private static JsonObject? GetMicrofrontendConfig(string path)
     {
-        var packageId = $"{name}/{version}";
+        var dir = Path.GetDirectoryName(path)!;
+        var cfgPath = Path.Combine(dir, "config.json");
 
-        if (_deps.TryGetValue(packageId, out var dep) && dep.Type == "package")
+        if (File.Exists(cfgPath))
         {
-            var packageName = name.ToLowerInvariant();
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var packagePath = Path.Combine(userProfile, ".nuget", "packages", packageName, version, $"{packageName}.{version}.nupkg");
-            var stream = File.OpenRead(packagePath);
-            _packages.Add(new PackageArchiveReader(stream));
-            return AddAssemblyToContext(name);
+            var text = File.ReadAllText(cfgPath, Encoding.UTF8);
+            return JsonSerializer.Deserialize<JsonObject?>(text);
         }
-        else
+
+        return null;
+    }
+
+    protected override Assembly? ResolveAssembly(string dll)
+    {
+        foreach (var package in _packages)
         {
-            var basePath = Path.GetDirectoryName(_path)!;
-            return Context.LoadFromAssemblyPath(Path.Combine(basePath, $"{name}.dll"));
+            var libItems = package.GetLibItems().FirstOrDefault(m => IsCompatible(m.TargetFramework))?.Items;
+
+            if (libItems is not null)
+            {
+                foreach (var lib in libItems)
+                {
+                    if (lib.EndsWith(dll))
+                    {
+                        return LoadAssembly(package, lib);
+                    }
+                }
+            }
         }
+
+        return null;
     }
 
     protected override async Task OnInitializing()
     {
         await SetContentRoots();
         await SetDependencies();
+        await base.OnInitializing();
     }
 
     private async Task SetContentRoots()
@@ -81,7 +95,17 @@ internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModul
 
         if (deps?.Libraries is not null)
         {
-            _deps.AddRange(deps.Libraries);
+            foreach (var lib in deps.Libraries)
+            {
+                if (lib.Value.Type == "package" && lib.Value.Path is not null)
+                {
+                    var packageName = lib.Key.ToLowerInvariant().Replace('/', '.');
+                    var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    var packagePath = Path.Combine(userProfile, ".nuget", "packages", lib.Value.Path, $"{packageName}.nupkg");
+                    var stream = File.OpenRead(packagePath);
+                    _packages.Add(new PackageArchiveReader(stream));
+                }
+            }
         }
     }
 
@@ -127,33 +151,6 @@ internal class LocalMicrofrontendPackage(string path, JsonObject? config, IModul
     }
 
     protected override string GetCssName() => $"{Name}.styles.css";
-
-    private Assembly? AddAssemblyToContext(string dll)
-    {
-        foreach (var package in _packages)
-        {
-            var libItems = package.GetLibItems().FirstOrDefault(m => IsCompatible(m.TargetFramework))?.Items;
-
-            if (libItems is not null)
-            {
-                foreach (var lib in libItems)
-                {
-                    if (lib.EndsWith(dll))
-                    {
-                        return LoadAssembly(package, lib);
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static bool IsCompatible(NuGetFramework framework)
-    {
-        var current = NuGetFramework.Parse(target);
-        return DefaultCompatibilityProvider.Instance.IsCompatible(current, framework);
-    }
 
     private static async Task<MemoryStream?> GetFile(PackageArchiveReader package, string path)
     {

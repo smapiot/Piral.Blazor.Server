@@ -14,7 +14,7 @@ internal class MfPackageService(IPiralConfig config, IModuleContainerService con
     public async Task<MicrofrontendPackage> LoadMicrofrontend(MfPackageMetadata entry)
     {
         var packages = await CollectPackages(entry);
-        return new NugetMicrofrontendPackage(entry, packages, _config, _container, _events, _data);
+        return new RemoteMicrofrontendPackage(entry, packages, _config, _container, _events, _data);
     }
 
     private async Task<List<PackageArchiveReader>> CollectPackages(MfPackageMetadata entry)
