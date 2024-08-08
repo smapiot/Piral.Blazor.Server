@@ -4,6 +4,7 @@
 
 - Fixed issue with broken assets
 - Fixed emulator running debugged micro frontend assemblies in default context
+- Updated Autoface to v9.0.0 (#6)
 - Added `PiralOptions` to configure behavior
 - Added `IsolatedAssemblies` option
 - Added support for relative paths in `AppShell` of SDK (#2)
