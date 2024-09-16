@@ -50,7 +50,7 @@ public static class Emulator
         var prog = ass.DefinedTypes.First(m => m.Name == "Program");
         var method = prog.GetMethods(BindingFlags.Static | BindingFlags.NonPublic).First();
 
-        method.Invoke(null, new[] { args });
+        method.Invoke(null, [args]);
     }
 
     private static string[] FindOtherModules(string root)
