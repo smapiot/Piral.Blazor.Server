@@ -1,6 +1,6 @@
 # Roadmap
 
-The 1.0.0 of `Piral.Blazor.Server` is expected end of Q2 2024 / beginning of Q3 2024. In the 1.0.0 we will include:
+The 1.0.0 of `Piral.Blazor.Server` is expected end of Q4 2024 / beginning of Q1 2025. In the 1.0.0 we will include:
 
 - Loading of MFs at the server
 - Support for client-only MFs
