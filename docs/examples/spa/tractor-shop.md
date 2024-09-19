@@ -1,3 +1,3 @@
-# SPA: Tractor Shop
+# SPA Example: Tractor Shop
 
 More infos soon.
