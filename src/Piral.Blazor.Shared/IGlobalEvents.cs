@@ -1,9 +1,9 @@
-﻿namespace Piral.Blazor.Orchestrator;
+namespace Piral.Blazor.Shared;
 
 /// <summary>
-/// Represents the micro frontend shared event basis.
+/// Represents an event bus that works globally - i.e., beyond the session scope.
 /// </summary>
-public interface IEvents
+public interface IGlobalEvents
 {
     /// <summary>
     /// Dispatches an event using the given type.

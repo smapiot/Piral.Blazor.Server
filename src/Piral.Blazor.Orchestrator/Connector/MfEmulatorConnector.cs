@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Piral.Blazor.Shared;
 using System.IO.Pipelines;
 using System.Runtime.Loader;
 using System.Text;
@@ -7,12 +8,12 @@ using System.Text.Json.Serialization;
 
 namespace Piral.Blazor.Orchestrator.Connector;
 
-internal class MfEmulatorConnector(IMfRepository repository, IEvents events) : IMfDebugConnector
+internal class MfEmulatorConnector(IMfRepository repository, IGlobalEvents events) : IMfDebugConnector
 {
     private readonly IEnumerable<string> _styles = [];
     private readonly IEnumerable<string> _scripts = ["_content/Piral.Blazor.Orchestrator/debug.js"];
     private readonly IMfRepository _repository = repository;
-    private readonly IEvents _events = events;
+    private readonly IGlobalEvents _events = events;
 
     public IEnumerable<string> Styles => _styles;
 

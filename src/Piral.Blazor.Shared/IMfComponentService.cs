@@ -2,9 +2,9 @@
 
 public interface IMfComponentService
 {
-	event EventHandler ComponentsChanged;
+    event EventHandler ComponentsChanged;
 
-	IEnumerable<string> Styles { get; }
+    IEnumerable<string> Styles { get; }
 
     IEnumerable<string> Scripts { get; }
 

@@ -15,7 +15,7 @@ public abstract class MicrofrontendPackage : IDisposable
     private readonly MicrofrontendLoadContext _context;
     public event EventHandler? PackageChanged;
 
-    public MicrofrontendPackage(MfPackageMetadata entry, IPiralConfig config, IModuleContainerService container, IEvents events, IData data)
+    public MicrofrontendPackage(MfPackageMetadata entry, IPiralConfig config, IModuleContainerService container, IGlobalEvents events, IData data)
     {
         _app = new (entry, events, data);
         _config = config;
@@ -127,9 +127,9 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public abstract Task<Stream?> GetFile(string path);
 
-    sealed class RelatedMfAppService(MfPackageMetadata entry, IEvents events, IData data) : IMfAppService
+    sealed class RelatedMfAppService(MfPackageMetadata entry, IGlobalEvents events, IData data) : IMfAppService
     {
-        private readonly IEvents _events = events;
+        private readonly IGlobalEvents _events = events;
         private readonly IData _data = data;
         private readonly MfDetails _meta = new () { Name = entry.Name, Version = entry.Version, Config = entry.Config ?? [] };
 

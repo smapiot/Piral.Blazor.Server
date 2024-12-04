@@ -1,9 +1,10 @@
 ﻿using NuGet.Packaging;
+using Piral.Blazor.Shared;
 using System.Reflection;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class RemoteMicrofrontendPackage(MfPackageMetadata entry, List<PackageArchiveReader> packages, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) :
+internal class RemoteMicrofrontendPackage(MfPackageMetadata entry, List<PackageArchiveReader> packages, IPiralConfig config, IModuleContainerService container, IGlobalEvents events, IData data) :
     MicrofrontendPackage(entry, config, container, events, data)
 {
     private readonly List<PackageArchiveReader> _packages = packages;

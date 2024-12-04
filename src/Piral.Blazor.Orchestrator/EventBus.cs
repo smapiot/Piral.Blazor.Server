@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
+using Piral.Blazor.Shared;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class GlobalEvents : IEvents
+internal class EventBus : IGlobalEvents, IScopedEvents
 {
     private ConcurrentDictionary<string, List<Delegate>> _eventMap = new();
 

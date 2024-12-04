@@ -1,4 +1,5 @@
 ﻿using NuGet.Packaging;
+using Piral.Blazor.Shared;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -7,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class LocalMicrofrontendPackage(string path, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) :
+internal class LocalMicrofrontendPackage(string path, IPiralConfig config, IModuleContainerService container, IGlobalEvents events, IData data) :
     MicrofrontendPackage(MakePackage(path), config, container, events, data)
 {
     private readonly string _path = path;

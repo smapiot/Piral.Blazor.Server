@@ -18,8 +18,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMfRepository, MfRepository>();
         services.AddSingleton<INugetService, NugetService>();
         services.AddSingleton<IMfPackageService, MfPackageService>();
-        services.AddSingleton<IEvents, GlobalEvents>();
+        services.AddSingleton<IGlobalEvents, EventBus>();
         services.AddSingleton<IData, GlobalData>();
+        services.AddScoped<IScopedEvents, EventBus>();
 
         if (config.IsEmulator)
         {

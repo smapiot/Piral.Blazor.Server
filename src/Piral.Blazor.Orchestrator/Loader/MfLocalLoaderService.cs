@@ -1,13 +1,15 @@
-﻿namespace Piral.Blazor.Orchestrator.Loader;
+﻿using Piral.Blazor.Shared;
 
-internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IPiralConfig config, IModuleContainerService container, IEvents events, IData data) : IMfLoaderService
+namespace Piral.Blazor.Orchestrator.Loader;
+
+internal class MfLocalLoaderService<T>(T originalLoader, IMfRepository repository, IPiralConfig config, IModuleContainerService container, IGlobalEvents events, IData data) : IMfLoaderService
     where T : class, IMfLoaderService
 {
     private readonly T _originalLoader = originalLoader;
     private readonly IMfRepository _repository = repository;
     private readonly IModuleContainerService _container = container;
     private readonly IPiralConfig _config = config;
-    private readonly IEvents _events = events;
+    private readonly IGlobalEvents _events = events;
     private readonly IData _data = data;
 
     public void ConnectMicrofrontends(CancellationToken cancellationToken)

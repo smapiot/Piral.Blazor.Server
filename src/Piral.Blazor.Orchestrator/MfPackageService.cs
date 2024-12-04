@@ -1,14 +1,14 @@
 ﻿using NuGet.Packaging;
-using System.Text.Json.Nodes;
+using Piral.Blazor.Shared;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class MfPackageService(IPiralConfig config, IModuleContainerService container, ISnapshotService snapshot, IEvents events, IData data) : IMfPackageService
+internal class MfPackageService(IPiralConfig config, IModuleContainerService container, ISnapshotService snapshot, IGlobalEvents events, IData data) : IMfPackageService
 {
     private readonly IPiralConfig _config = config;
     private readonly IModuleContainerService _container = container;
     private readonly ISnapshotService _snapshot = snapshot;
-    private readonly IEvents _events = events;
+    private readonly IGlobalEvents _events = events;
     private readonly IData _data = data;
 
     public async Task<MicrofrontendPackage> LoadMicrofrontend(MfPackageMetadata entry)
