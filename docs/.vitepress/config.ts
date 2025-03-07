@@ -61,6 +61,7 @@ const sidebars = (): DefaultTheme.SidebarItem[] => [
     items: [
       { text: "Overview", link: "/examples/" },
       { text: "Server: Tractor Shop", link: "/examples/server/tractor-shop" },
+      { text: "Server: Disney Sharp", link: "/examples/server/disney-sharp" },
       { text: "Server: Community Template", link: "/examples/server/template" },
       { text: "SPA: Tractor Shop", link: "/examples/spa/tractor-shop" },
     ],
@@ -99,7 +100,7 @@ export default defineConfig({
     },
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Copyright © 2020 - 2024 smapiot & contributors. <a href='/imprint'>Imprint</a>",
+      copyright: "Copyright © 2020 - 2025 smapiot & contributors. <a href='/imprint'>Imprint</a>",
     },
     nav: [
       { text: "Docs", link: "/getting-started/" },
