@@ -120,7 +120,7 @@ public class CreateEmulatorOptions : ICommand
         var sdkVersion = project.GetSdkVersion() ?? "0.5.0";
         var name = Name ?? $"{projectName}.Emulator";
         var description = $"The emulator for the {projectName} application.";
-        var fn = Path.Combine(outDir, $"{name}.nupkg");
+        var fn = Path.Combine(outDir, $"{name}.{projectVersion}.nupkg");
 
         File.WriteAllText(Path.Combine(buildDir, "README.md"), GetReadme(name, projectVersion, description, sdkVersion));
 
