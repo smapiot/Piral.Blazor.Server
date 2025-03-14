@@ -27,11 +27,11 @@ public class CreateEmulatorOptions : ICommand
     {
         var srcDir = Path.Combine(Environment.CurrentDirectory, Source ?? "");
         var csproj = srcDir.GetProjectFile() ?? throw new InvalidOperationException($"No csproj file found in '{srcDir}'.");
-        var buildDirRoot = Path.Combine(srcDir, "bin", "Release");
+        var buildDirRoot = Path.Combine(srcDir, "bin", "Debug");
         var buildDir = Path.Combine(buildDirRoot, "net8.0", "publish");
         var outDir = Path.Combine(Environment.CurrentDirectory, Output ?? buildDirRoot);
 
-        RunCommand("dotnet", "publish -c Release", srcDir);
+        RunCommand("dotnet", "publish -c Debug", srcDir);
 
         outDir.CreateDirectoryIfNotExists();
 
@@ -95,7 +95,7 @@ public class CreateEmulatorOptions : ICommand
         return Task.CompletedTask;
     }}
 }}");
-        var link1 = link("Piral", "https://piral.io");
+        var link1 = link("Piral", "https://www.piral.io");
         var link2 = link("Piral for Blazor", "https://blazor.piral.io");
         var link3 = link("Piral Cloud", "https://www.piral.cloud");
         var link4 = link("Consulting and support for Piral", "https://www.smapiot.com");
