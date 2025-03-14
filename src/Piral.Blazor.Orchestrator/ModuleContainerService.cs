@@ -2,31 +2,33 @@
 using Piral.Blazor.Shared;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
-internal class ModuleContainerService(IServiceProvider globalProvider) : IModuleContainerService
+internal class ModuleContainerService(IServiceProvider globalProvider, IGlobalEvents events, IData data) : IModuleContainerService
 {
     private readonly IServiceProvider _globalProvider = globalProvider;
+    private readonly IGlobalEvents _events = events;
+    private readonly IData _data = data;
     private readonly Dictionary<AssemblyLoadContext, IScopeResolver> _resolvers = [];
 
-    public async Task<IMfModule> ConfigureModule(Assembly assembly, IMfAppService app)
+    public (IMfModule, IServiceProvider) ConfigureModule(Assembly assembly, JsonObject? config)
     {
         var alc = AssemblyLoadContext.GetLoadContext(assembly);
         var module = EmptyMfModule.Instance;
+        var piletServices = new ServiceCollection();
 
         if (alc is not null && !_resolvers.ContainsKey(alc))
         {
-            var piletServices = new ServiceCollection();
             var assName = assembly.GetName();
             var ModuleType = FindEntryClass(assembly);
-            var meta = new MfDetails
+            var pilet = new WrappedMfService(_events, _data, new MfDetails
             {
                 Name = assName.Name!,
                 Version = assName.Version!.ToString(),
-                Config = app.Meta.Config,
-            };
-            var pilet = new WrappedMfService(app, meta);
+                Config = config ?? [],
+            });
 
             alc.Unloading += (context) =>
             {
@@ -45,17 +47,17 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
                 if (moduleInstance is not null)
                 {
                     moduleInstance.Configure(piletServices);
-
-                    await moduleInstance.Setup(app);
-
                     module = moduleInstance;
                 }
             }
 
-            _resolvers.Add(alc, new ScopeResolver(piletServices));
+            var resolver = new ScopeResolver(piletServices);
+            var localProvider = resolver.Resolve(_globalProvider);
+            _resolvers.Add(alc, resolver);
+            return (module, localProvider);
         }
 
-        return module;
+        return (module, _globalProvider);
     }
 
     public IScopeResolver? GetProvider(Assembly assembly)
@@ -92,36 +94,37 @@ internal class ModuleContainerService(IServiceProvider globalProvider) : IModule
         }
     }
 
-    sealed class WrappedMfService(IMfAppService app, MfDetails meta) : IMfService
+    sealed class WrappedMfService(IGlobalEvents events, IData data, MfDetails meta) : IMfService
     {
-        private readonly IMfAppService _app = app;
+        private readonly IData _data = data;
         private readonly MfDetails _meta = meta;
+        private readonly IGlobalEvents _events = events;
 
         public MfDetails Meta => _meta;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {
-            _app.AddEventListener(type, handler);
+            _events.AddEventListener(type, handler);
         }
 
         public void DispatchEvent<T>(string type, T args)
         {
-            _app.DispatchEvent(type, args);
+            _events.DispatchEvent(type, args);
         }
 
         public void RemoveEventListener<T>(string type, Action<T> handler)
         {
-            _app.RemoveEventListener(type, handler);
+            _events.RemoveEventListener(type, handler);
         }
 
         public bool TryGetData<T>(string name, out T value)
         {
-            return _app.TryGetData(name, out value);
+            return _data.TryGetData(_meta.Name, name, out value);
         }
 
         public bool TrySetData<T>(string name, T value)
         {
-            return _app.TrySetData(name, value);
+            return _data.TrySetData(_meta.Name, name, value);
         }
     }
 }

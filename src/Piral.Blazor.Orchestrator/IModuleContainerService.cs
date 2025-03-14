@@ -1,5 +1,6 @@
 ﻿using Piral.Blazor.Shared;
 using System.Reflection;
+using System.Text.Json.Nodes;
 
 namespace Piral.Blazor.Orchestrator;
 
@@ -8,7 +9,7 @@ public interface IModuleContainerService
     /// <summary>
     /// Configures the whole assembly.
     /// </summary>
-    Task<IMfModule> ConfigureModule(Assembly assembly, IMfAppService app);
+    (IMfModule, IServiceProvider) ConfigureModule(Assembly assembly, JsonObject? config);
 
     /// <summary>
     /// Gets the provider that was established for the given assembly.

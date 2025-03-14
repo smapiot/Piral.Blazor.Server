@@ -18,9 +18,9 @@ internal class MfComponentService : IMfComponentService
 
     private IEnumerable<MicrofrontendPackage> ActivePackages => _repository.Packages.Where(m => !m.IsDisabled);
 
-    public IEnumerable<string> Scripts => ActivePackages.SelectMany(m => m.Scripts.Select(s => m.Service.GetLink(s)));
+    public IEnumerable<string> Scripts => ActivePackages.SelectMany(m => m.Scripts);
 
-    public IEnumerable<string> Styles => ActivePackages.SelectMany(m => m.Styles.Select(s => m.Service.GetLink(s)));
+    public IEnumerable<string> Styles => ActivePackages.SelectMany(m => m.Styles);
 
     public IEnumerable<string> ComponentNames => ActivePackages.SelectMany(m => m.ComponentNames).Distinct();
 

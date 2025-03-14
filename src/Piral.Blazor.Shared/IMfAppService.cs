@@ -11,4 +11,6 @@ public interface IMfAppService : IMfService
     void AppendScript(string path);
 
     void PrependStyleSheet(string path);
+
+    IServiceProvider Services { get; }
 }

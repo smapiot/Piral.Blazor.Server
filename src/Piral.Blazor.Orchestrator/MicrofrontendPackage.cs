@@ -9,31 +9,34 @@ namespace Piral.Blazor.Orchestrator;
 
 public abstract class MicrofrontendPackage : IDisposable
 {
-    private readonly RelatedMfAppService _app;
+    private readonly MfPackageMetadata _entry;
     private readonly IModuleContainerService _container;
     private readonly IPiralConfig _config;
     private readonly MicrofrontendLoadContext _context;
+    private readonly IGlobalEvents _events;
+    private readonly IData _data;
     public event EventHandler? PackageChanged;
 
     public MicrofrontendPackage(MfPackageMetadata entry, IPiralConfig config, IModuleContainerService container, IGlobalEvents events, IData data)
     {
-        _app = new (entry, events, data);
+        _entry = entry;
         _config = config;
         _container = container;
+        _events = events;
+        _data = data;
         _context = new MicrofrontendLoadContext($"{entry.Name}@{entry.Version}", ResolveAssembly);   
     }
 
     private IMfModule? _module;
+    private RelatedMfAppService? _app;
     private bool _disabled = false;
     private Assembly? _assembly;
 
-    public IMfAppService Service => _app;
+    public string Name => _entry.Name;
 
-    public string Name => _app.Name;
+    public string Version => _entry.Version;
 
-    public string Version => _app.Version;
-
-    public JsonObject? Config => _app.Config;
+    public JsonObject? Config => _entry.Config;
 
     public bool IsDisabled
     {
@@ -53,13 +56,13 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public AssemblyLoadContext Context => _context;
 
-    public IEnumerable<string> Scripts => _app.Scripts;
+    public IEnumerable<string> Scripts => _app?.Scripts.Select(s => _app.GetLink(s)) ?? [];
 
-    public IEnumerable<string> Styles => _app.Styles;
+    public IEnumerable<string> Styles => _app?.Styles.Select(s => _app.GetLink(s)) ?? [];
 
-    public IEnumerable<string> ComponentNames => _app.Components.Keys;
+    public IEnumerable<string> ComponentNames => _app?.Components.Keys ?? Enumerable.Empty<string>();
 
-    public IEnumerable<(string Name, Type Type)> Components => _app.Components.SelectMany(m => m.Value.Select(type => (m.Key, type)));
+    public IEnumerable<(string Name, Type Type)> Components => _app?.Components.SelectMany(m => m.Value.Select(type => (m.Key, type))) ?? [];
 
     public IEnumerable<string> Dependencies =>
         _assembly?.
@@ -69,7 +72,7 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public IEnumerable<Type> GetComponents(string name)
     {
-        if (name is not null && _app.Components.TryGetValue(name, out var result))
+        if (name is not null && _app is not null && _app.Components.TryGetValue(name, out var result))
         {
             return result;
         }
@@ -85,11 +88,21 @@ public abstract class MicrofrontendPackage : IDisposable
 
         if (assembly is not null)
         {
+            var (module, provider) = _container.ConfigureModule(assembly, Config);
+            var meta = new MfDetails
+            {
+                Name = Name,
+                Version = Version,
+                Config = Config ?? []
+            };
+            var app = new RelatedMfAppService(meta, provider, _events, _data);
             _assembly = assembly;
-            _module = await _container.ConfigureModule(assembly, _app);
+            _module = module;
+            _app = app;
+            await _module.Setup(app);
+            _app.PrependStyleSheet(GetCssName());
         }
 
-        _app.PrependStyleSheet(GetCssName());
         await OnInitialized();
     }
 
@@ -115,23 +128,24 @@ public abstract class MicrofrontendPackage : IDisposable
 
     public async Task Destroy()
     {
-        if (_module is not null)
+        if (_module is not null && _app is not null)
         {
             await _module.Teardown(_app);
+            _app.Reset();
+            _app = null;
+            _module = null;
         }
-
-        _app.Reset();
     }
 
     public virtual void Dispose() => Context.Unload();
 
     public abstract Task<Stream?> GetFile(string path);
 
-    sealed class RelatedMfAppService(MfPackageMetadata entry, IGlobalEvents events, IData data) : IMfAppService
+    sealed class RelatedMfAppService(MfDetails meta, IServiceProvider services, IGlobalEvents events, IData data) : IMfAppService
     {
         private readonly IGlobalEvents _events = events;
         private readonly IData _data = data;
-        private readonly MfDetails _meta = new () { Name = entry.Name, Version = entry.Version, Config = entry.Config ?? [] };
+        private readonly MfDetails _meta = meta;
 
         public MfDetails Meta => _meta;
 
@@ -141,11 +155,7 @@ public abstract class MicrofrontendPackage : IDisposable
 
         public List<string> Scripts { get; } = [];
 
-        public string Name { get; } = entry.Name;
-
-        public string Version { get; } = entry.Version;
-
-        public JsonObject? Config { get; } = entry.Config;
+        public IServiceProvider Services { get; } = services;
 
         public void AddEventListener<T>(string type, Action<T> handler)
         {
@@ -174,12 +184,12 @@ public abstract class MicrofrontendPackage : IDisposable
 
         public bool TrySetData<T>(string key, T value)
         {
-            return _data.TrySetData(Name, key, value);
+            return _data.TrySetData(_meta.Name, key, value);
         }
 
         public bool TryGetData<T>(string key, out T value)
         {
-            return _data.TryGetData(Name, key, out value);
+            return _data.TryGetData(_meta.Name, key, out value);
         }
 
         public void Reset()
