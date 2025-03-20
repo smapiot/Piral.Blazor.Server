@@ -38,6 +38,68 @@ You will need to leverage the `Piral.Blazor.Sdk` SDK in the csproj file like thi
 
 The example shows a micro frontend using an app shell deployed as `My.Emulator` in version `1.0.0`. The micro frontend brings its own dependencies, namely `BlazorGoogleMaps` and `BlazorOcticons`.
 
+### Referencing the Emulator
+
+There are multiple ways of how to reference the emulator:
+
+1. A globally installed NuGet package
+2. A locally installed NuGet package
+3. An absolute file path
+4. A relative file path
+
+Let's go over these possibilities quickly. Arguably, by far the most common is (2), as it works reliably independent of current machine's configuration.
+
+#### Globally Installed NuGet Package
+
+For this the emulator needs already to be installed on your system.
+
+```xml
+<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+  <PropertyGroup>
+    <AppShell>My.Emulator/0.1.0</AppShell>
+  </PropertyGroup>
+</Project>
+```
+
+#### Locally Installed NuGet Package
+
+By placing the emulator in a `PackageReference` with `PrivateAssets` set to `all` you'll make sure that NuGet downloads the package - properly populating the package cache.
+
+```xml
+<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+  <PropertyGroup>
+    <AppShell>My.Emulator/0.1.0</AppShell>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="My.Emulator" Version="0.1.0" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
+```
+
+#### Absolute File Path
+
+The full path leading to the artifacts produced by the emulator project.
+
+```xml
+<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+  <PropertyGroup>
+    <AppShell>C:\Code\My.Emulator\bin\Debug\net8.0\publish</AppShell>
+  </PropertyGroup>
+</Project>
+```
+
+#### Relative File Path
+
+The relative path leading to the artifacts produced by the emulator project. Uusally, you want to be relative from the `csproj` location of the current project.
+
+```xml
+<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+  <PropertyGroup>
+    <AppShell>../../My.Emulator/bin/Debug/net8.0/publish</AppShell>
+  </PropertyGroup>
+</Project>
+```
+
 ## Module Definition / Registration and Usage of Components
 
 In order to be a valid micro frontend there has to be *one* **public** class that inherits from `IMfModule`:

@@ -9,6 +9,7 @@
 - Updated name of created emulator - now includes used version
 - Added `PiralOptions` to configure behavior
 - Added `IsolatedAssemblies` option
+- Added `IScopedEvents` for using events within the current scope (#9)
 - Added support for relative paths in `AppShell` of SDK (#2)
 - Added new documentation page (blazor.piral.io)
 - Added support for `IConfiguration` of micro frontends

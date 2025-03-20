@@ -4,7 +4,7 @@ Every pilet gets automatically a service called `IMfService` injected.
 
 [[toc]]
 
-## Events
+## Global Events
 
 You can use the `IMfService` service to emit and receive events via the standard API event bus. This is great for doing loosely-coupled MF-to-MF communication.
 
@@ -44,6 +44,27 @@ Example:
 ```
 
 Another component can now trigger this by using `ps.DispatchEvent("toggle-sidebar", false);` with an injected `@inject IMfService ps`.
+
+**Important**: This service is not scoped! So the communication is done directly, without taking the current user context (if any) into consideration. If you require the user context to play a role, you should consider using scoped events, which can be done via the `IScopedEvents` service.
+
+## Scoped Events
+
+For using scoped events you will need to inject the `IScopedEvents` into the context:
+
+```razor
+@inject IScopedEvents events
+
+<div @onclick=@Example>...</div>
+
+@code {
+    public void Example()
+    {
+        events.DispatchEvent<string>("clicked-button", "Content");
+    }
+}
+```
+
+Remember that the `IMfService` is not scoped - so for the scoped events you will need to use a different service.
 
 ## Sharing Data
 
