@@ -124,8 +124,6 @@ public abstract class MicrofrontendPackage : IDisposable
 
     protected abstract Assembly? GetAssembly();
 
-    protected static bool IsCompatible(NuGetFramework framework) => DefaultCompatibilityProvider.Instance.IsCompatible(Constants.CurrentFramework, framework);
-
     public async Task Destroy()
     {
         if (_module is not null && _app is not null)

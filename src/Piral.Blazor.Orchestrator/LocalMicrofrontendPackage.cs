@@ -52,16 +52,13 @@ internal class LocalMicrofrontendPackage(string path, IPiralConfig config, IModu
     {
         foreach (var package in _packages)
         {
-            var libItems = package.GetLibItems().FirstOrDefault(m => IsCompatible(m.TargetFramework))?.Items;
+            var libItems = package.GetMatchingLibItems();
 
-            if (libItems is not null)
+            foreach (var lib in libItems)
             {
-                foreach (var lib in libItems)
+                if (lib.EndsWith(dll))
                 {
-                    if (lib.EndsWith(dll))
-                    {
-                        return LoadAssembly(package, lib);
-                    }
+                    return LoadAssembly(package, lib);
                 }
             }
         }
