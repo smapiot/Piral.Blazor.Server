@@ -1,6 +1,6 @@
 # Piral.Blazor.Server Changelog
 
-## 0.5.0 (tbd)
+## 0.5.0 (March 27, 2025)
 
 - Fixed issue with broken assets
 - Fixed emulator running debugged micro frontend assemblies in default context
