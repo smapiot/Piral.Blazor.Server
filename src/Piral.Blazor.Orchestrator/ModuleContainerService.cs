@@ -51,7 +51,7 @@ internal class ModuleContainerService(IServiceProvider globalProvider, IGlobalEv
                 }
             }
 
-            var resolver = new ScopeResolver(piletServices);
+            var resolver = new ScopeResolver(_globalProvider, piletServices);
             var localProvider = resolver.Resolve(_globalProvider);
             _resolvers.Add(alc, resolver);
             return (module, localProvider);

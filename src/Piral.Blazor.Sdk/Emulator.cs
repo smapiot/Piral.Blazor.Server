@@ -102,13 +102,13 @@ public static class Emulator
 
             if (files.Length == 1)
             {
-                var subpath = Path.Combine(path, "bin", "Release", "net8.0", "publish");
+                var subpath = Path.Combine(path, "bin", "Debug", "net8.0", "publish");
                 //TODO check if outdated
                 var mustBuild = !Directory.Exists(subpath);
 
                 if (mustBuild)
                 {
-                    RunCommand("dotnet", "publish -c Release", path);
+                    RunCommand("dotnet", "publish -c Debug", path);
                 }
 
                 return subpath;

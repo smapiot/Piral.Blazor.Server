@@ -5,6 +5,7 @@
 - Fixed issue with broken assets
 - Fixed emulator running debugged micro frontend assemblies in default context
 - Fixed loading of NuGet packages including any target (#11)
+- Fixed behavior of child containers w.r.t. scoping (#12)
 - Updated Autoface to v9.0.0 (#6)
 - Updated name of created emulator - now includes used version
 - Added `PiralOptions` to configure behavior

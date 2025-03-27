@@ -13,10 +13,38 @@ public interface IScopeResolver : IDisposable
     IServiceProvider Resolve(IServiceProvider scope);
 }
 
-internal class ScopeResolver(IServiceCollection services) : IScopeResolver
+internal class ScopeResolver : IScopeResolver
 {
-    private readonly IServiceCollection _services = services;
+    private readonly IServiceProvider _provider;
     private readonly ConditionalWeakTable<IServiceProvider, IServiceProvider> _mapping = [];
+
+    public ScopeResolver(IServiceProvider parent, IServiceCollection services)
+    {
+		var scope = parent.GetService<ILifetimeScope>()!;
+		var child = scope.BeginLifetimeScope(newBuilder =>
+		{
+			newBuilder.Populate(services);
+
+            foreach (var registration in scope.ComponentRegistry.Registrations)
+            {
+                if (registration.Lifetime == CurrentScopeLifetime.Instance)
+                {
+                    var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
+
+                    if (serviceType != typeof(IServiceProvider) && serviceType != typeof(ILifetimeScope))
+                    {
+                        var rb = RegistrationBuilder.ForDelegate(serviceType, (_, _) =>
+                            parent.GetService(serviceType)!);
+
+                        newBuilder.RegisterCallback(cr => 
+                            RegistrationBuilder.RegisterSingleComponent(cr, rb));
+                    }
+                }
+            }
+		});
+		_provider = new AutofacServiceProvider(child);
+		_mapping.Add(parent, _provider);
+    }
 
     public void Dispose()
     {
@@ -33,30 +61,10 @@ internal class ScopeResolver(IServiceCollection services) : IScopeResolver
     {
         if (!_mapping.TryGetValue(parentProvider, out var childProvider))
         {
-            var scope = parentProvider.GetService<ILifetimeScope>()!;
-            var childScope = scope.BeginLifetimeScope(newBuilder =>
-            {
-                newBuilder.Populate(_services);
-
-                foreach (var registration in scope.ComponentRegistry.Registrations)
-                {
-                    if (registration.Lifetime == CurrentScopeLifetime.Instance)
-                    {
-                        var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
-
-                        if (serviceType != typeof(IServiceProvider) && serviceType != typeof(ILifetimeScope))
-                        {
-                            var rb = RegistrationBuilder.ForDelegate(serviceType, (_, _) =>
-                                parentProvider.GetService(serviceType)!);
-
-                            newBuilder.RegisterCallback(cr => 
-                                RegistrationBuilder.RegisterSingleComponent(cr, rb));
-                        }
-                    }
-                }
-            });
-            childProvider = new AutofacServiceProvider(childScope);
-            _mapping.TryAdd(parentProvider, childProvider);
+			var scope = _provider.GetService<ILifetimeScope>()!;
+			var childScope = scope.BeginLifetimeScope();
+			childProvider = new AutofacServiceProvider(childScope);
+			_mapping.Add(parentProvider, childProvider);
         }
 
         return childProvider;
