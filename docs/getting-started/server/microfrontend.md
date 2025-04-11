@@ -17,7 +17,7 @@ The RCL has to be for .NET 8.
 You will need to leverage the `Piral.Blazor.Sdk` SDK in the csproj file like this:
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+<Project Sdk="Piral.Blazor.Sdk/0.5.1">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -54,7 +54,7 @@ Let's go over these possibilities quickly. Arguably, by far the most common is (
 For this the emulator needs already to be installed on your system.
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+<Project Sdk="Piral.Blazor.Sdk/0.5.1">
   <PropertyGroup>
     <AppShell>My.Emulator/0.1.0</AppShell>
   </PropertyGroup>
@@ -66,7 +66,7 @@ For this the emulator needs already to be installed on your system.
 By placing the emulator in a `PackageReference` with `PrivateAssets` set to `all` you'll make sure that NuGet downloads the package - properly populating the package cache.
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+<Project Sdk="Piral.Blazor.Sdk/0.5.1">
   <PropertyGroup>
     <AppShell>My.Emulator/0.1.0</AppShell>
   </PropertyGroup>
@@ -81,7 +81,7 @@ By placing the emulator in a `PackageReference` with `PrivateAssets` set to `all
 The full path leading to the artifacts produced by the emulator project.
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+<Project Sdk="Piral.Blazor.Sdk/0.5.1">
   <PropertyGroup>
     <AppShell>C:\Code\My.Emulator\bin\Debug\net8.0\publish</AppShell>
   </PropertyGroup>
@@ -93,7 +93,7 @@ The full path leading to the artifacts produced by the emulator project.
 The relative path leading to the artifacts produced by the emulator project. Uusally, you want to be relative from the `csproj` location of the current project.
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.5.0">
+<Project Sdk="Piral.Blazor.Sdk/0.5.1">
   <PropertyGroup>
     <AppShell>../../My.Emulator/bin/Debug/net8.0/publish</AppShell>
   </PropertyGroup>

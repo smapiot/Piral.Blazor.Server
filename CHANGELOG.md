@@ -1,5 +1,9 @@
 # Piral.Blazor.Server Changelog
 
+## 0.5.1 (April 11, 2025)
+
+- Fixed issue with DI for scoped services (#13)
+
 ## 0.5.0 (March 27, 2025)
 
 - Fixed issue with broken assets
