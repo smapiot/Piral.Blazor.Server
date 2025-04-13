@@ -16,13 +16,11 @@ public interface IScopeResolver : IDisposable
 internal class ScopeResolver : IScopeResolver
 {
     private readonly IServiceProvider _provider;
-    private readonly IServiceCollection _services;
     private readonly ConditionalWeakTable<IServiceProvider, IServiceProvider> _mapping = [];
 
     public ScopeResolver(IServiceProvider parent, IServiceCollection services)
     {
-        _services = services;
-        _provider = new AutofacServiceProvider(CreateChild(parent, parent));
+        _provider = new AutofacServiceProvider(CreateRoot(parent, services));
         _mapping.Add(parent, _provider);
     }
 
@@ -49,30 +47,42 @@ internal class ScopeResolver : IScopeResolver
         return childProvider;
     }
 
-    private ILifetimeScope CreateChild(IServiceProvider globalProvider, IServiceProvider localParent)
+    private static ILifetimeScope CreateRoot(IServiceProvider provider, IServiceCollection services)
+    {
+        var scope = provider.GetService<ILifetimeScope>()!;
+
+        return scope.BeginLifetimeScope(newBuilder =>
+        {
+            newBuilder.Populate(services);
+            SetupScope(newBuilder, scope.ComponentRegistry.Registrations, provider);
+        });
+    }
+
+    private static ILifetimeScope CreateChild(IServiceProvider globalProvider, IServiceProvider localParent)
     {
         var scope = globalProvider.GetService<ILifetimeScope>()!;
 
         return scope.BeginLifetimeScope(newBuilder =>
         {
-            newBuilder.Populate(_services);
+            var registrations = localParent.GetAutofacRoot().ComponentRegistry.Registrations;
+            SetupScope(newBuilder, registrations, localParent);
+        });
+    }
 
-            foreach (var registration in scope.ComponentRegistry.Registrations)
+    private static void SetupScope(ContainerBuilder builder, IEnumerable<IComponentRegistration> registrations, IServiceProvider provider)
+    {
+        foreach (var registration in registrations)
+        {
+            if (registration.Lifetime == CurrentScopeLifetime.Instance)
             {
-                if (registration.Lifetime == CurrentScopeLifetime.Instance)
+                var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
+
+                if (serviceType != typeof(IServiceProvider) && serviceType != typeof(ILifetimeScope))
                 {
-                    var serviceType = registration.Services.OfType<IServiceWithType>().Select(m => m.ServiceType).First();
-
-                    if (serviceType != typeof(IServiceProvider) && serviceType != typeof(ILifetimeScope))
-                    {
-                        var rb = RegistrationBuilder.ForDelegate(serviceType, (_, _) =>
-                            localParent.GetService(serviceType)!);
-
-                        newBuilder.RegisterCallback(cr => 
-                            RegistrationBuilder.RegisterSingleComponent(cr, rb));
-                    }
+                    var rb = RegistrationBuilder.ForDelegate(serviceType, (_, _) => provider.GetService(serviceType)!);
+                    builder.RegisterCallback(cr => RegistrationBuilder.RegisterSingleComponent(cr, rb));
                 }
             }
-        });
+        }
     }
 }
