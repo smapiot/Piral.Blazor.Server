@@ -33,8 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(ManagePackageVersionsCentrally)' == '' OR '$(ManagePackageVersionsCentrally)' == false" Include="Piral.Blazor.Shared" Version="0.5.1" PrivateAssets="all"/> 
-    <PackageReference Condition="'$(ManagePackageVersionsCentrally)' == true" Include="Piral.Blazor.Shared" VersionOverride="0.5.1" PrivateAssets="all" />
+    <PackageReference Condition="'$(ManagePackageVersionsCentrally)' == '' OR '$(ManagePackageVersionsCentrally)' == false" Include="Piral.Blazor.Shared" Version="1.0.0" PrivateAssets="all"/> 
+    <PackageReference Condition="'$(ManagePackageVersionsCentrally)' == true" Include="Piral.Blazor.Shared" VersionOverride="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
