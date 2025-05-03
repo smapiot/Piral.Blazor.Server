@@ -1,6 +1,6 @@
 # Piral.Blazor.Server Changelog
 
-## 1.0.0 (May 2, 2025)
+## 1.0.0 (May 3, 2025)
 
 - First release
 
