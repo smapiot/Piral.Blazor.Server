@@ -98,7 +98,7 @@ Just install your dependencies as you like; if they are correctly in the csproj 
 As an example, the following is a valid *csproj* file for a micro frontend:
 
 ```xml
-<Project Sdk="Piral.Blazor.Sdk/0.1.0">
+<Project Sdk="Piral.Blazor.Sdk/1.0.0">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
