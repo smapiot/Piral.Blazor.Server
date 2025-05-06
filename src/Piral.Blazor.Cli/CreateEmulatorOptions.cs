@@ -35,7 +35,7 @@ public class CreateEmulatorOptions : ICommand
 
         outDir.CreateDirectoryIfNotExists();
 
-        CreateNuGetPackage(csproj, buildDir, outDir);
+        CreateNuGetPackage(csproj, buildDir, outDir, Version);
 
         return Task.CompletedTask;
     }
@@ -110,11 +110,11 @@ public class CreateEmulatorOptions : ICommand
             $"- {link1}\n- {link2}\n- {link3}\n- {link4}";
     }
 
-    private void CreateNuGetPackage(string csproj, string buildDir, string outDir)
+    private void CreateNuGetPackage(string csproj, string buildDir, string outDir, string? version)
     {
         var project = Project.Load(csproj);
         var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
-        var projectVersion = project.GetVersion() ?? "1.0.0";
+        var projectVersion = version ?? project.GetVersion() ?? "1.0.0";
         var projectAuthors = project.GetAuthor() ?? "Piral";
         var license = project.GetLicense() ?? "MIT";
         var sdkVersion = project.GetSdkVersion() ?? "1.0.0";
