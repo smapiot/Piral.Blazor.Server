@@ -114,7 +114,7 @@ public class CreateEmulatorOptions : ICommand
     {
         var project = Project.Load(csproj);
         var projectName = project.GetName() ?? Path.GetFileNameWithoutExtension(csproj);
-        var projectVersion = project.GetVersion() ?? "1.0.0";
+        var projectVersion = Version ?? project.GetVersion() ?? "1.0.0";
         var projectAuthors = project.GetAuthor() ?? "Piral";
         var license = project.GetLicense() ?? "MIT";
         var sdkVersion = project.GetSdkVersion() ?? "1.0.0";
