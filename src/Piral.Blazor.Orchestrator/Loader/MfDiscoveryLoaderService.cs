@@ -97,6 +97,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
         foreach (var entry in updated)
         {
             var mf = await _package.LoadMicrofrontend(entry);
+            _current.Add(entry);
             await _repository.SetPackage(mf);
         }
     }
@@ -123,11 +124,11 @@ public class MfDiscoveryLoaderService : IMfLoaderService
             }
             else if (matchingEntry.Version != currentEntry.Version)
             {
-                _current[i] = matchingEntry;
+                _current.RemoveAt(i);
             }
             else if (IsDifferent(matchingEntry.Config, currentEntry.Config))
             {
-                _current[i] = matchingEntry;
+                _current.RemoveAt(i);
             }
             else
             {
@@ -138,7 +139,7 @@ public class MfDiscoveryLoaderService : IMfLoaderService
         return (updated, removed);
     }
 
-    private static bool IsDifferent(JsonObject? config1, JsonObject? config2) => JsonObject.DeepEquals(config1, config2);
+    private static bool IsDifferent(JsonObject? config1, JsonObject? config2) => !JsonNode.DeepEquals(config1, config2);
 
     public async void ConnectMicrofrontends(CancellationToken ct)
     {

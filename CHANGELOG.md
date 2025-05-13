@@ -1,5 +1,10 @@
 # Piral.Blazor.Server Changelog
 
+## 1.0.1 (May 13, 2025)
+
+- Fixed `--version` argument for the `create-emulator` command of the CLI (#14) by @software-programmer
+- Fixed hot update and removal of micro frontends when detected
+
 ## 1.0.0 (May 3, 2025)
 
 - First release
