@@ -14,7 +14,10 @@ internal class MfComponentService : IMfComponentService
         _repository.PackagesChanged += OnPackagesChanged;
     }
 
-    private void OnPackagesChanged(object? sender, EventArgs e) => ComponentsChanged?.Invoke(this, e);
+    private void OnPackagesChanged(object? sender, EventArgs e)
+    {
+        ComponentsChanged?.Invoke(this, e);
+    }
 
     private IEnumerable<MicrofrontendPackage> ActivePackages => _repository.Packages.Where(m => !m.IsDisabled);
 

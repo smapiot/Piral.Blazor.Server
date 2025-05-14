@@ -21,10 +21,14 @@ public class MfRepository : IMfRepository, IDisposable
                 package.PackageChanged -= NotifyPackagesChanged;
                 _microfrontends.Remove(package);
                 await package.Destroy();
-                package.Dispose();
             }
 
             NotifyPackagesChanged(this, EventArgs.Empty);
+
+            foreach (var package in packages)
+            {
+                package.Dispose();
+            }
         }
     }
 
@@ -53,5 +57,8 @@ public class MfRepository : IMfRepository, IDisposable
         _microfrontends.Clear();
     }
 
-    private void NotifyPackagesChanged(object? sender, EventArgs e) => PackagesChanged?.Invoke(sender, e);
+    private void NotifyPackagesChanged(object? sender, EventArgs e)
+    {
+        PackagesChanged?.Invoke(sender, e);
+    }
 }

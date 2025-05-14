@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using NuGet.Frameworks;
 using Piral.Blazor.Shared;
 using System.Reflection;
 using System.Runtime.Loader;
